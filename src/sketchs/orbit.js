@@ -1,5 +1,6 @@
 import Matter from "matter-js";
 import p5 from "p5";
+
 /**
  *
  * @param {p5} p5
@@ -8,10 +9,10 @@ const script = function (p5) {
   const engine = Matter.Engine.create();
   const planet = Matter.Bodies.circle(200, 200, 20, {
     isStatic: true,
-    mass: 0.002,
+    mass: 0.001,
   });
-  const satellite = Matter.Bodies.circle(170, 200, 10, {
-    mass: 0.002,
+  const satellite = Matter.Bodies.circle(150, 200, 10, {
+    mass: 0.0001,
   });
   function calculateForce(planet, satellite) {
     const distance = Matter.Vector.sub(planet.position, satellite.position);
@@ -26,11 +27,13 @@ const script = function (p5) {
       gravitationalForceMagnitude
     );
 
-    Matter.Body.applyForce(satellite, satellite.position, gravitationalForce);
+    const result = Matter.Vector.add(gravitationalForce, gravitationalForce);
+
+    Matter.Body.applyForce(satellite, satellite.position, result);
   }
 
   p5.setup = () => {
-    p5.frameRate(24);
+    p5.frameRate(60);
     engine.world.gravity.y = 0;
     Matter.World.add(engine.world, [planet, satellite]);
     Matter.Events.on(engine, "beforeUpdate", (event) =>
@@ -39,10 +42,21 @@ const script = function (p5) {
     p5.createCanvas(400, 400);
   };
   p5.draw = () => {
+    Matter.Runner.run(engine);
+
     p5.background(50);
     p5.ellipseMode(p5.RADIUS);
 
-    Matter.Runner.run(engine);
+    p5.stroke(255);
+    p5.noFill();
+    p5.circle(
+      200,
+      200,
+      Matter.Vector.magnitude(
+        Matter.Vector.sub(planet.position, satellite.position)
+      )
+    );
+
     p5.stroke(0);
     p5.fill(100, 255, 255);
     p5.circle(planet.position.x, planet.position.y, planet.circleRadius);
