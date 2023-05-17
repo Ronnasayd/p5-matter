@@ -11,7 +11,7 @@ const script = function (p5) {
     isStatic: true,
     mass: 0.001,
   });
-  const satellite = Matter.Bodies.circle(150, 200, 10, {
+  const satellite = Matter.Bodies.circle(100, 200, 10, {
     mass: 0.0001,
   });
   function calculateForce(planet, satellite) {

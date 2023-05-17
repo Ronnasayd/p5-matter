@@ -6,6 +6,7 @@ import p5 from "p5";
 const script = function (p5) {
   const engine = Matter.Engine.create();
   p5.setup = () => {
+    Matter.World.add(engine.world, []);
     p5.frameRate(60);
     p5.createCanvas(400, 400);
   };
