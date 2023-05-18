@@ -7,25 +7,29 @@ import { WithOpenCV } from "../common";
  * @param {p5} p5
  */
 const script = function (p5) {
+  const CANVAS_WIDTH = 400;
+  const CANVAS_HEIGHT = 400;
   const withOpenCV = new WithOpenCV();
-  let canvas, src, dst1, dst2, ksize, slider, value, capture, captureImage;
+  let canvas, src, dst1, dst2, ksize, slider, value, capture;
 
   p5.setup = () => {
     withOpenCV.setup((/**  @type {opencv}  */ cv) => {
       dst1 = new cv.Mat();
       dst2 = new cv.Mat();
+      const videoCapture = p5.createCapture(p5.VIDEO);
+      videoCapture.size(CANVAS_WIDTH, CANVAS_HEIGHT);
+      videoCapture.hide();
+      capture = new cv.VideoCapture(videoCapture.elt);
+      src = new cv.Mat(videoCapture.width, videoCapture.height, cv.CV_8UC4);
     });
     p5.frameRate(60);
-    canvas = p5.createCanvas(400, 400);
-    capture = p5.createCapture(p5.VIDEO);
-    slider = p5.createSlider(1, 13, 3, 2);
-    capture.hide();
+    canvas = p5.createCanvas(CANVAS_WIDTH, CANVAS_HEIGHT);
+    slider = p5.createSlider(1, 45, 3, 2);
   };
   p5.draw = () => {
     withOpenCV.run((/**  @type {opencv}  */ cv) => {
+      capture?.read(src);
       value = slider.value();
-      captureImage = capture.get();
-      src = cv.imread(captureImage.canvas);
       cv.cvtColor(src, dst1, cv.COLOR_RGBA2GRAY, 0);
       ksize = new cv.Size(value, value);
       cv.GaussianBlur(dst1, dst2, ksize, 0, 0, cv.BORDER_DEFAULT);

@@ -1,1 +1,1 @@
-import "./sketchs/opencv-treshold";
+import "./sketchs/lineArt";

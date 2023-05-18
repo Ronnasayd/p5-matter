@@ -1,10 +1,11 @@
 import p5 from "p5";
 import { WithOpenCV } from "../common";
-/**
- * @param {p5} p5
- */
+
 /**
  * @typedef {import('opencv-ts').default} opencv
+ */
+/**
+ * @param {p5} p5
  */
 const script = function (p5) {
   const withOpenCV = new WithOpenCV();
