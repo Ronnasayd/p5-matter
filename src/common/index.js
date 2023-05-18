@@ -33,19 +33,25 @@ export class Element {
 export class WithOpenCV {
   constructor() {
     this.load = false;
+    // this._insert();
   }
   run(callback) {
     if (this.load) {
-      if (callback) callback();
+      this._insert().then(() => {
+        if (callback) callback(cv);
+      });
     }
   }
   setup(callback) {
     this._insert().then(() => {
-      if (callback) callback();
+      if (callback) callback(cv);
     });
   }
 
   _insert() {
+    if (this.load) {
+      return Promise.resolve(true);
+    }
     return new Promise((resolve) => {
       console.log("inserting opencv ...");
       let script = document.createElement("script");

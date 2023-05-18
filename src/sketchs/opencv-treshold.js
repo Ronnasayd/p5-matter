@@ -1,6 +1,9 @@
 import p5 from "p5";
 import { WithOpenCV } from "../common";
 /**
+ * @typedef {import('opencv-ts').default} opencv
+ */
+/**
  * @param {p5} p5
  */
 const script = function (p5) {
@@ -12,7 +15,7 @@ const script = function (p5) {
   };
 
   p5.setup = () => {
-    withOpenCV.setup(() => {
+    withOpenCV.setup((/**  @type {opencv}  */ cv) => {
       dst1 = new cv.Mat();
       dst2 = new cv.Mat();
     });
@@ -23,7 +26,7 @@ const script = function (p5) {
     capture.hide();
   };
   p5.draw = () => {
-    withOpenCV.run(() => {
+    withOpenCV.run((/**  @type {opencv}  */ cv) => {
       value = slider.value();
       src = cv.imread(img.canvas);
       cv.cvtColor(src, dst1, cv.COLOR_RGBA2GRAY, 0);
