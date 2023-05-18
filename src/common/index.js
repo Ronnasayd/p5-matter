@@ -29,3 +29,38 @@ export class Element {
     );
   }
 }
+
+export class WithOpenCV {
+  constructor() {
+    this.load = false;
+  }
+  run(callback) {
+    if (this.load) {
+      if (callback) callback();
+    }
+  }
+  setup(callback) {
+    this._insert().then(() => {
+      if (callback) callback();
+    });
+  }
+
+  _insert() {
+    return new Promise((resolve) => {
+      console.log("inserting opencv ...");
+      let script = document.createElement("script");
+      script.src = "opencv.js";
+      script.onload = () => {
+        cv["onRuntimeInitialized"] = () => {
+          if (typeof cv !== "undefined") {
+            console.log(`openCV loaded!`);
+            this.load = true;
+            resolve(true);
+          }
+        };
+      };
+
+      document.body.appendChild(script);
+    });
+  }
+}
