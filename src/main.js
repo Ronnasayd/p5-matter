@@ -1,1 +1,1 @@
-import "./sketchs/lineArt";
+import "./sketchs/LineArt";

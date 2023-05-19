@@ -33,10 +33,11 @@ const script = function (p5) {
       image = new cv.Mat();
       p5.createFileInput((file) => {
         img = p5.createImg(file.data, "");
-        img.hide();
-        setTimeout(() => {
+
+        img.elt.onload = () => {
           src = cv.imread(img.elt);
-        }, 200);
+        };
+        img.hide();
         button = p5.createButton("Download");
         button.position(CANVAS_WIDTH + 160, 70);
         button.mousePressed(() => {
@@ -78,7 +79,6 @@ const script = function (p5) {
         ksize = new cv.Size(gaussianValue, gaussianValue);
         cv.GaussianBlur(image, image, ksize, 0, 0, cv.BORDER_DEFAULT);
         cv.Canny(image, image, cannyOneValue, cannyTwoValue);
-        // cv.threshold(image, image, treshValue, 200, cv.THRESH_BINARY);
         cv.bitwise_not(image, image);
         cv.imshow(canvas.elt, image);
       });

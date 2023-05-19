@@ -10,13 +10,12 @@ const script = function (p5) {
   const CANVAS_WIDTH = 400;
   const CANVAS_HEIGHT = 400;
   const withOpenCV = new WithOpenCV();
-  let canvas, src, dst1, dst2, ksize, slider, value, capture;
+  let canvas, src, image, ksize, slider, value, capture, videoCapture;
 
   p5.setup = () => {
     withOpenCV.setup((/**  @type {opencv}  */ cv) => {
-      dst1 = new cv.Mat();
-      dst2 = new cv.Mat();
-      const videoCapture = p5.createCapture(p5.VIDEO);
+      image = new cv.Mat();
+      videoCapture = p5.createCapture(p5.VIDEO);
       videoCapture.size(CANVAS_WIDTH, CANVAS_HEIGHT);
       videoCapture.hide();
       capture = new cv.VideoCapture(videoCapture.elt);
@@ -30,10 +29,10 @@ const script = function (p5) {
     withOpenCV.run((/**  @type {opencv}  */ cv) => {
       capture?.read(src);
       value = slider.value();
-      cv.cvtColor(src, dst1, cv.COLOR_RGBA2GRAY, 0);
+      cv.cvtColor(src, image, cv.COLOR_RGBA2GRAY, 0);
       ksize = new cv.Size(value, value);
-      cv.GaussianBlur(dst1, dst2, ksize, 0, 0, cv.BORDER_DEFAULT);
-      cv.imshow(canvas.elt, dst2);
+      cv.GaussianBlur(image, image, ksize, 0, 0, cv.BORDER_DEFAULT);
+      cv.imshow(canvas.elt, image);
     });
   };
 };
