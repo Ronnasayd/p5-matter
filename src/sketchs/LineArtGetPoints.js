@@ -26,11 +26,15 @@ const script = function (p5) {
     cannyTwoValue,
     gaussianValue,
     button,
+    contours,
+    hierarchy,
     img;
 
   p5.setup = () => {
     withOpenCV.setup((/**  @type {opencv}  */ cv) => {
       image = new cv.Mat();
+      hierarchy = new cv.Mat();
+      contours = new cv.MatVector();
       p5.createFileInput((file) => {
         img = p5.createImg(file.data, "");
 
@@ -41,7 +45,21 @@ const script = function (p5) {
         button = p5.createButton("Download");
         button.position(CANVAS_WIDTH + 160, 70);
         button.mousePressed(() => {
-          p5.saveCanvas("download");
+          cv.findContours(
+            image,
+            contours,
+            hierarchy,
+            cv.RETR_TREE,
+            cv.CHAIN_APPROX_SIMPLE
+          );
+          const points = [];
+          for (let i = 0; i < contours.size(); i++) {
+            const ci = contours.get(i);
+            for (let j = 0; j < ci.data32S.length; j += 2) {
+              points.push({ x: ci.data32S[j], y: ci.data32S[j + 1] });
+            }
+          }
+          p5.saveJSON(points, "points");
         });
       });
     });
@@ -81,6 +99,7 @@ const script = function (p5) {
         cv.Canny(image, image, cannyOneValue, cannyTwoValue);
         cv.bitwise_not(image, image);
         cv.threshold(image, image, 200, 255, cv.THRESH_BINARY);
+
         cv.imshow(canvas.elt, image);
       });
     }
