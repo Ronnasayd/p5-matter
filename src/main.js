@@ -1,1 +1,1 @@
-import "./sketchs/LineArtDrawByPoints";
+import "./sketchs/LineArt";
