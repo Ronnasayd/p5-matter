@@ -11,7 +11,6 @@ import { WithOpenCV } from "../common";
 const script = function (p5) {
   const CANVAS_WIDTH = 1000;
   const CANVAS_HEIGHT = 580;
-  const withOpenCV = new WithOpenCV();
   let image,
     cannyOneDiv,
     cannyTwoDiv,
@@ -31,7 +30,7 @@ const script = function (p5) {
     img;
 
   p5.setup = () => {
-    withOpenCV.setup((/**  @type {opencv}  */ cv) => {
+    WithOpenCV.setup((/**  @type {opencv}  */ cv) => {
       image = new cv.Mat();
       hierarchy = new cv.Mat();
       contours = new cv.MatVector();
@@ -84,7 +83,7 @@ const script = function (p5) {
   };
   p5.draw = () => {
     if (!!img && !!src) {
-      withOpenCV.run((/**  @type {opencv}  */ cv) => {
+      WithOpenCV.run((/**  @type {opencv}  */ cv) => {
         cannyOneValue = cannyOneSlider.value();
         cannyTwoValue = cannyTwoSlider.value();
         gaussianValue = gaussianSlider.value();

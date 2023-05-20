@@ -8,8 +8,6 @@ import { WithOpenCV } from "../common";
  * @param {p5} p5
  */
 const script = function (p5) {
-  const withOpenCV = new WithOpenCV();
-
   const CANVAS_WIDTH = 400;
   const CANVAS_HEIGHT = 400;
 
@@ -19,7 +17,7 @@ const script = function (p5) {
     p5.frameRate(60);
     canvas = p5.createCanvas(CANVAS_WIDTH, CANVAS_HEIGHT);
     videoCapture = p5.createCapture(p5.VIDEO);
-    withOpenCV.setup((/**  @type {opencv}  */ cv) => {
+    WithOpenCV.setup((/**  @type {opencv}  */ cv) => {
       videoCapture.size(CANVAS_WIDTH, CANVAS_HEIGHT);
       videoCapture.hide();
       capture = new cv.VideoCapture(videoCapture.elt);
@@ -27,7 +25,7 @@ const script = function (p5) {
     });
   };
   p5.draw = () => {
-    withOpenCV.run((/**  @type {opencv}  */ cv) => {
+    WithOpenCV.run((/**  @type {opencv}  */ cv) => {
       capture?.read(src);
       cv.imshow(canvas.elt, src);
     });

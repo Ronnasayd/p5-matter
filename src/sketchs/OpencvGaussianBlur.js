@@ -9,11 +9,10 @@ import { WithOpenCV } from "../common";
 const script = function (p5) {
   const CANVAS_WIDTH = 400;
   const CANVAS_HEIGHT = 400;
-  const withOpenCV = new WithOpenCV();
   let canvas, src, image, ksize, slider, value, capture, videoCapture;
 
   p5.setup = () => {
-    withOpenCV.setup((/**  @type {opencv}  */ cv) => {
+    WithOpenCV.setup((/**  @type {opencv}  */ cv) => {
       image = new cv.Mat();
       videoCapture = p5.createCapture(p5.VIDEO);
       videoCapture.size(CANVAS_WIDTH, CANVAS_HEIGHT);
@@ -26,7 +25,7 @@ const script = function (p5) {
     slider = p5.createSlider(1, 45, 3, 2);
   };
   p5.draw = () => {
-    withOpenCV.run((/**  @type {opencv}  */ cv) => {
+    WithOpenCV.run((/**  @type {opencv}  */ cv) => {
       capture?.read(src);
       value = slider.value();
       cv.cvtColor(src, image, cv.COLOR_RGBA2GRAY, 0);

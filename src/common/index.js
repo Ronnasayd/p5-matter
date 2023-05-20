@@ -31,24 +31,22 @@ export class Element {
 }
 
 export class WithOpenCV {
-  constructor() {
-    this.load = false;
-    // this._insert();
-  }
-  run(callback) {
+  load = false;
+
+  static run(callback) {
     if (this.load) {
       this._insert().then(() => {
         if (callback) callback(cv);
       });
     }
   }
-  setup(callback) {
+  static setup(callback) {
     this._insert().then(() => {
       if (callback) callback(cv);
     });
   }
 
-  _insert() {
+  static _insert() {
     if (this.load) {
       return Promise.resolve(true);
     }

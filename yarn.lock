@@ -112,6 +112,11 @@
   resolved "https://registry.yarnpkg.com/@esbuild/win32-x64/-/win32-x64-0.17.19.tgz#8cfaf2ff603e9aabb910e9c0558c26cf32744061"
   integrity sha512-lAhycmKnVOuRYNtRtatQR1LPQf2oYCkRGkSFnseDAKPl8lu5SOsK/e1sXe5a0Pc5kHIHe6P2I/ilntNv2xf3cA==
 
+"@mediapipe/tasks-vision@^0.10.0":
+  version "0.10.0"
+  resolved "https://registry.yarnpkg.com/@mediapipe/tasks-vision/-/tasks-vision-0.10.0.tgz#d95a816f66889dcb15545636ac7fc78588c1d705"
+  integrity sha512-l7Sqdw9EgO758tLrt+jDqqKnYKjeOFgzC9MRcE4qZnh/XG/o7JBacEF4cAzes+2wsElRCVoVGf8ETllIqgBzWA==
+
 "@types/matter-js@^0.18.3":
   version "0.18.3"
   resolved "https://registry.yarnpkg.com/@types/matter-js/-/matter-js-0.18.3.tgz#dbe8103666cf055f77831703584d43e9ea5aee90"

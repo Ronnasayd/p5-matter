@@ -9,6 +9,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@mediapipe/tasks-vision": "^0.10.0",
     "matter-js": "^0.19.0",
     "p5": "^1.6.0"
   },

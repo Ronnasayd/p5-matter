@@ -9,7 +9,6 @@ import { WithOpenCV } from "../common";
  * @param {p5} p5
  */
 const script = function (p5) {
-  const withOpenCV = new WithOpenCV();
   let canvas, src, dst1, dst2, slider, value, capture, img;
 
   p5.preload = () => {
@@ -17,7 +16,7 @@ const script = function (p5) {
   };
 
   p5.setup = () => {
-    withOpenCV.setup((/**  @type {opencv}  */ cv) => {
+    WithOpenCV.setup((/**  @type {opencv}  */ cv) => {
       dst1 = new cv.Mat();
       dst2 = new cv.Mat();
       src = cv.imread(img.canvas);
@@ -27,7 +26,7 @@ const script = function (p5) {
     slider = p5.createSlider(0, 250, 100);
   };
   p5.draw = () => {
-    withOpenCV.run((/**  @type {opencv}  */ cv) => {
+    WithOpenCV.run((/**  @type {opencv}  */ cv) => {
       value = slider.value();
       cv.cvtColor(src, dst1, cv.COLOR_RGBA2GRAY, 0);
       cv.threshold(dst1, dst2, value, 200, cv.THRESH_BINARY);
