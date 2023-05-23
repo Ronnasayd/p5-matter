@@ -1,1 +1,1 @@
-import "./sketchs/FaceLandmark";
+import "./sketchs/GPUHelloWorld";
