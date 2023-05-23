@@ -22,10 +22,11 @@ const script = function (p5) {
     videoCapture.hide();
   };
   p5.draw = async () => {
-    p5.image(videoCapture, 0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+    p5.background(200);
+    // p5.image(videoCapture, 0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
     landmarks = FaceLandmarkDetection.detect(videoCapture.elt);
 
-    p5.fill("#00ffaa");
+    p5.fill("#00ff99");
     if (landmarks?.faceLandmarks) {
       for (const landmark of landmarks?.faceLandmarks[0]) {
         p5.circle(landmark.x * CANVAS_WIDTH, landmark.y * CANVAS_HEIGHT, 4, 4);
