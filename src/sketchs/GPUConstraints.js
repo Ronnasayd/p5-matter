@@ -12,7 +12,7 @@ const script = function (p5) {
     updatePositionsKernel,
     calculateDistancesKernel,
     isCollisionKernel;
-  const NUMBER_PARTICLES = 800;
+  const NUMBER_PARTICLES = 700;
   p5.setup = () => {
     gpu = new GPU();
     positionsKernel = gpu
@@ -80,10 +80,10 @@ const script = function (p5) {
     p5.ellipseMode(p5.RADIUS);
     distances = calculateDistancesKernel(positions);
     collisions = isCollisionKernel(distances);
-
     positions = updatePositionsKernel(positions, distances);
+
     for (let index = 0; index < NUMBER_PARTICLES; index++) {
-      collisions[index] ? p5.fill("#ffaa00") : p5.fill("#00aaff");
+      collisions[index] ? p5.fill("#ff2200") : p5.fill("#00aaff");
       p5.circle(positions[index][0], positions[index][1], 5);
     }
   };
