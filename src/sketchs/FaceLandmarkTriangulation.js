@@ -11,7 +11,7 @@ const script = function (p5) {
   const CANVAS_WIDTH = 600;
   const CANVAS_HEIGHT = 600;
 
-  let videoCapture, capture, src, canvas, landmarks, gpu, points;
+  let videoCapture, canvas, landmarks, points;
 
   function landmarks2Points(landmarks) {
     const points = [];
@@ -25,19 +25,18 @@ const script = function (p5) {
   p5.setup = async () => {
     p5.frameRate(12);
     canvas = p5.createCanvas(CANVAS_WIDTH, CANVAS_HEIGHT);
-    videoCapture = p5.createCapture(p5.VIDEO, async (stream) => {
+    videoCapture = p5.createCapture(p5.VIDEO, async () => {
       await FaceLandmarkDetection.init();
     });
     videoCapture.hide();
   };
   p5.draw = async () => {
-    p5.background(200);
+    p5.background(250);
     // p5.image(videoCapture, 0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
     landmarks = FaceLandmarkDetection.detect(videoCapture.elt)
       ?.faceLandmarks?.[0];
-
     p5.noFill();
-    p5.stroke("#ff0000");
+    p5.stroke("#00aaff");
     if (!!landmarks) {
       points = Delaunay.from(landmarks2Points(landmarks)).trianglePolygons();
       for (const point of points) {
