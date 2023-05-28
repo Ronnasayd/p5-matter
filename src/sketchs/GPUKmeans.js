@@ -1,4 +1,4 @@
-import { GPU, Input } from "gpu.js";
+import { GPU } from "gpu.js";
 import p5 from "p5";
 import { WithOpenCV } from "../common";
 
@@ -9,12 +9,12 @@ import { WithOpenCV } from "../common";
  * @param {p5} p5
  */
 const script = function (p5) {
-  let img, canvas, src, gpu, kmeansKernel, gpuInput, exampleKernel;
+  let img, canvas, src, gpu, kmeansKernel;
   let means = [];
   let colors = [];
 
   p5.mousePressed = (event) => {
-    if (!!img && !!src) {
+    if (!!img && !!src && !event.button) {
       means.push([event.offsetX, event.offsetY]);
       colors.push([Math.random(), Math.random(), Math.random()]);
     }
@@ -23,12 +23,10 @@ const script = function (p5) {
     p5.frameRate(60);
 
     gpu = new GPU({ mode: "cpu" });
-    gpuInput = new Input(means, [means.length / 2, 2, 1]);
 
     WithOpenCV.setup((/**  @type {opencv}  */ cv) => {
       p5.createFileInput((file) => {
         img = p5.createImg(file.data);
-        img.hide();
 
         img.elt.onload = () => {
           src = cv.imread(img.elt);
@@ -44,6 +42,7 @@ const script = function (p5) {
               const g = image[index + 1] / 255;
               const b = image[index + 2] / 255;
               const alpha = image[index + 3] / 255;
+              const gray = (r + g + b) / 3;
 
               if (meansLength > 3) {
                 let minDistance = 2;
@@ -58,11 +57,13 @@ const script = function (p5) {
                   const rm = image[mIndex] / 255;
                   const gm = image[mIndex + 1] / 255;
                   const bm = image[mIndex + 2] / 255;
-                  const distance = Math.sqrt(
-                    Math.pow(rm - r, 2) +
-                      Math.pow(gm - g, 2) +
-                      Math.pow(bm - b, 2)
-                  );
+                  const graym = (rm + gm + bm) / 3;
+                  // const distance = Math.sqrt(
+                  //   Math.pow(rm - r, 2) +
+                  //     Math.pow(gm - g, 2) +
+                  //     Math.pow(bm - b, 2)
+                  // );
+                  const distance = Math.sqrt(Math.pow(gray - graym, 2));
                   if (distance < minDistance) {
                     minDistance = distance;
                     distanceIndex = index;
@@ -92,8 +93,7 @@ const script = function (p5) {
   };
   p5.draw = () => {
     if (!!img && !!src) {
-      WithOpenCV.run(() => {
-        gpuInput.size = [means.length / 2, 2, 1];
+      WithOpenCV.run((/**  @type {opencv}  */ cv) => {
         kmeansKernel(src.data, means.length, means, colors);
         p5.drawingContext.drawImage(kmeansKernel.canvas, 0, 0);
       });
