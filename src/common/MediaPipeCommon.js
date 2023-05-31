@@ -1,7 +1,11 @@
 import { FaceLandmarker, FilesetResolver } from "@mediapipe/tasks-vision";
 
 export class FaceLandmarkDetection {
-  static async init() {
+  /**
+   *
+   * @param {'VIDEO'|'IMAGE'} runningMode
+   */
+  static async init(runningMode) {
     this.vision = await FilesetResolver.forVisionTasks(
       "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision/wasm"
     );
@@ -12,11 +16,18 @@ export class FaceLandmarkDetection {
           "https://storage.googleapis.com/mediapipe-models/face_landmarker/face_landmarker/float16/latest/face_landmarker.task",
       },
       outputFaceBlendshapes: true,
-      runningMode: "VIDEO",
+      runningMode,
       numFaces: 1,
     });
   }
-  static detect(video) {
+
+  static detectForImage(image) {
+    if (!!this.faceLandmarker) {
+      return this.faceLandmarker.detect(image);
+    }
+    return { faceLandmarkers: [] };
+  }
+  static detectForVideo(video) {
     if (!!this.faceLandmarker) {
       return this.faceLandmarker.detectForVideo(video, Date.now());
     }

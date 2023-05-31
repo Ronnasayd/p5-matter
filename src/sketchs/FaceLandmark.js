@@ -17,14 +17,14 @@ const script = function (p5) {
     p5.frameRate(12);
     canvas = p5.createCanvas(CANVAS_WIDTH, CANVAS_HEIGHT);
     videoCapture = p5.createCapture(p5.VIDEO, async (stream) => {
-      await FaceLandmarkDetection.init();
+      await FaceLandmarkDetection.init("VIDEO");
     });
     videoCapture.hide();
   };
   p5.draw = async () => {
     p5.background(200);
     // p5.image(videoCapture, 0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
-    landmarks = FaceLandmarkDetection.detect(videoCapture.elt);
+    landmarks = FaceLandmarkDetection.detectForVideo(videoCapture.elt);
 
     p5.fill("#00ff99");
     if (landmarks?.faceLandmarks) {

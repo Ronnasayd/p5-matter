@@ -68,3 +68,38 @@ export class WithOpenCV {
     });
   }
 }
+/**
+ * @template U
+ * @param {U} object
+ * @returns {U}
+ */
+export function factoryProxy(object) {
+  const _keys = [];
+  object.log = (key) => {
+    _keys.push(key);
+  };
+  const handler = {
+    get(target, key) {
+      return target[key];
+    },
+    set(target, key, value) {
+      if (_keys.includes(key)) {
+        if (typeof value === "object") {
+          console.log(`[${key}]:`, value);
+        } else {
+          console.log(`[${key}]:${value}`);
+        }
+      }
+      return Reflect.set(target, key, value);
+    },
+  };
+  return new Proxy(object, handler);
+}
+export function landmarks2Points(landmarks, CANVAS_WIDTH, CANVAS_HEIGHT) {
+  const points = [];
+  for (let index = 0; index < landmarks.length; index++) {
+    const element = landmarks[index];
+    points.push([element.x * CANVAS_WIDTH, element.y * CANVAS_HEIGHT]);
+  }
+  return points;
+}

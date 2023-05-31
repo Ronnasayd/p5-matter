@@ -39,6 +39,7 @@ const input = function (p5) {
       v.img.hide();
       v.img.elt.onload = () => {
         v.src = cv.imread(v.img.elt);
+
         v.kmeansKernel = v.gpu
           .createKernel(function (
             image,

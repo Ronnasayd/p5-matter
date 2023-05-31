@@ -1,5 +1,6 @@
 import { Delaunay } from "d3-delaunay";
 import p5 from "p5";
+import { landmarks2Points } from "../common";
 import { FaceLandmarkDetection } from "../common/MediaPipeCommon";
 /**
  * @typedef {import('opencv-ts').default} opencv
@@ -13,32 +14,25 @@ const script = function (p5) {
 
   let videoCapture, canvas, landmarks, points;
 
-  function landmarks2Points(landmarks) {
-    const points = [];
-    for (let index = 0; index < landmarks.length; index++) {
-      const element = landmarks[index];
-      points.push([element.x * CANVAS_WIDTH, element.y * CANVAS_HEIGHT]);
-    }
-    return points;
-  }
-
   p5.setup = async () => {
     p5.frameRate(12);
     canvas = p5.createCanvas(CANVAS_WIDTH, CANVAS_HEIGHT);
     videoCapture = p5.createCapture(p5.VIDEO, async () => {
-      await FaceLandmarkDetection.init();
+      await FaceLandmarkDetection.init("VIDEO");
     });
     videoCapture.hide();
   };
   p5.draw = async () => {
     p5.background(250);
     // p5.image(videoCapture, 0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
-    landmarks = FaceLandmarkDetection.detect(videoCapture.elt)
+    landmarks = FaceLandmarkDetection.detectForVideo(videoCapture.elt)
       ?.faceLandmarks?.[0];
     p5.noFill();
     p5.stroke("#00aaff");
     if (!!landmarks) {
-      points = Delaunay.from(landmarks2Points(landmarks)).trianglePolygons();
+      points = Delaunay.from(
+        landmarks2Points(landmarks, CANVAS_WIDTH, CANVAS_HEIGHT)
+      ).trianglePolygons();
       for (const point of points) {
         p5.triangle(
           point[0][0],
