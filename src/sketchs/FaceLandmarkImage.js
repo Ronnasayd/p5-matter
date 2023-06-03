@@ -8,6 +8,7 @@ const v = factoryProxy({
   CANVAS_HEIGHT: 550,
   fps: 30,
   refImg: null,
+  canvas: null,
   faceLandmarks: [],
   delaunay: [],
   landmark_points_68: [
@@ -25,10 +26,11 @@ const v = factoryProxy({
 const script = function (p5) {
   p5.createFileInput(async function (file) {
     v.refImg = p5.createImg(file.data);
-    v.refImg.hide();
+    v.refImg.addClass("absolute z-[0] h-[550px]");
     v.refImg.elt.onload = async (e) => {
       v.CANVAS_WIDTH = (v.refImg.width / v.refImg.height) * v.CANVAS_HEIGHT;
-      p5.createCanvas(v.CANVAS_WIDTH, v.CANVAS_HEIGHT);
+      v.canvas = p5.createCanvas(v.CANVAS_WIDTH, v.CANVAS_HEIGHT);
+      v.canvas.addClass("absolute z-[1]");
       v.faceLandmarks = (
         await FaceLandmarkDetection.detectForImage(v.refImg.elt)
       ).faceLandmarks[0];
@@ -39,11 +41,19 @@ const script = function (p5) {
     p5.frameRate(v.fps);
   };
   p5.draw = () => {
-    p5.background(250);
+    p5.background(255, 0);
     if (!!v.faceLandmarks.length) {
-      p5.image(v.refImg, 0, 0, v.CANVAS_WIDTH, v.CANVAS_HEIGHT);
+      p5.fill("#ff0000");
+      for (const index of v.landmark_points_68) {
+        p5.circle(
+          v.faceLandmarks[index].x * v.CANVAS_WIDTH,
+          v.faceLandmarks[index].y * v.CANVAS_HEIGHT,
+          4
+        );
+      }
       p5.noFill();
-      p5.stroke("#00ff55");
+      p5.stroke(0, 255, 50, 1);
+      p5.strokeWeight(2);
       v.delaunay = Delaunay.from(
         landmarks2Points(v.faceLandmarks, v.CANVAS_WIDTH, v.CANVAS_HEIGHT)
       ).trianglePolygons();
@@ -55,14 +65,6 @@ const script = function (p5) {
           point[1][1],
           point[2][0],
           point[2][1]
-        );
-      }
-      p5.fill("#ff0000");
-      for (const index of v.landmark_points_68) {
-        p5.circle(
-          v.faceLandmarks[index].x * v.CANVAS_WIDTH,
-          v.faceLandmarks[index].y * v.CANVAS_HEIGHT,
-          5
         );
       }
     }

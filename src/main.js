@@ -1,1 +1,1 @@
-import "./sketchs/FaceLandmarkImage";
+import "./sketchs/FaceLandmark";
