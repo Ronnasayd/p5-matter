@@ -34,7 +34,6 @@ const script = function (p5) {
     );
     v.refImg.addClass("absolute z-[0] h-[550px]");
     v.refImg.elt.onload = async (e) => {
-      // v.refImg.elt.crossOrigin = "";
       v.CANVAS_WIDTH = (v.refImg.width / v.refImg.height) * v.CANVAS_HEIGHT;
       v.canvas = p5.createCanvas(v.CANVAS_WIDTH, v.CANVAS_HEIGHT);
       v.canvas.addClass("absolute z-[1]");
@@ -55,7 +54,7 @@ const script = function (p5) {
         );
       }
       p5.noFill();
-      p5.stroke(0, 255, 50, 1);
+      p5.stroke(0, 255, 250, 1);
       p5.strokeWeight(2);
       v.delaunay = Delaunay.from(
         landmarks2Points(v.faceLandmarks, v.CANVAS_WIDTH, v.CANVAS_HEIGHT)
