@@ -73,20 +73,20 @@ const script = function (p5) {
   p5.setup = async () => {
     // p5.noLoop();
     p5.frameRate(60);
-    v.canvas = p5.createCanvas(460, 460);
+    v.canvas = p5.createCanvas(350, 460);
 
     await FaceLandmarkDetection.init("IMAGE");
 
     WithOpenCV.setup((/**  @type {opencv}  */ cv) => {
       p5.createImg(
-        "https://st.depositphotos.com/2325841/2534/i/600/depositphotos_25349029-stock-photo-perfect-skin.jpg",
+        "https://miro.medium.com/v2/resize:fit:634/format:webp/1*DGu2cT59lYlGPRqNFMOtSA.png",
         "img1",
         "Anonymous",
         (img) => processImage(img, cv)
       );
 
       p5.createImg(
-        "https://img.freepik.com/fotos-gratis/rosto-feminino-caucasiano-lindo-com-maquiagem-brilhante_186202-2064.jpg",
+        "https://miro.medium.com/v2/resize:fit:640/format:webp/1*QqdF-ubXx6YhG5dEwDarow.png",
         "img2",
         "Anonymous",
         (img) => processImage(img, cv)
@@ -99,7 +99,7 @@ const script = function (p5) {
         for (const delaunay of v.delaunay) {
           v.triangles.push(v.getTriangles(delaunay));
         }
-        for (const triangle of [v.triangles[0][6]]) {
+        for (const triangle of v.triangles[0]) {
           const [p1x1, p1y1, p1x2, p1y2, p1x3, p1y3] = triangle;
 
           const index1 = v.maps[0][`${p1x1}:${p1y1}`];
@@ -134,7 +134,7 @@ const script = function (p5) {
 
           const mask = new cv.Mat.zeros(
             new cv.Size(r2.width, r2.height),
-            cv.CV_32F
+            cv.CV_8UC1
           );
 
           const t1Rect = cv.matFromArray(3, 1, cv.CV_32FC2, [
@@ -164,6 +164,8 @@ const script = function (p5) {
           ]);
 
           cv.fillConvexPoly(mask, t2RectInt, new cv.Scalar(255), cv.LINE_AA, 0);
+          const inverseMask = new cv.Mat();
+          cv.bitwise_not(mask, inverseMask);
 
           const rect1 = new cv.Rect(r1.x, r1.y, r1.width, r1.height);
           const rect2 = new cv.Rect(r2.x, r2.y, r2.width, r2.height);
@@ -185,10 +187,19 @@ const script = function (p5) {
             cv.INTER_LINEAR,
             cv.BORDER_REFLECT_101
           );
+          const dst2 = new cv.Mat();
+          const dst3 = new cv.Mat();
+          const dst4 = new cv.Mat();
+
+          cv.bitwise_and(dst, dst, dst2, mask);
+          cv.bitwise_and(roi2, roi2, dst3, inverseMask);
+
+          cv.bitwise_or(dst2, dst3, dst4);
+
+          dst4.copyTo(roi2);
         }
         p5.noLoop();
         cv.imshow(v.canvas.elt, v.cvImgs[1]);
-        p5.triangle(...v.ref);
       });
     }
   };
