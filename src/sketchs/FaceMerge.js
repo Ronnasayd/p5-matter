@@ -4,7 +4,8 @@ import { WithOpenCV, factoryProxy } from "../common";
 import { FaceLandmarkDetection } from "../common/MediaPipeCommon";
 
 const v = factoryProxy({
-  ref: [],
+  alpha: 0.5,
+  refCvImg: null,
   canvas: new p5.Element("canvas"),
   cvImgs: [],
   imgs: [],
@@ -73,21 +74,20 @@ const script = function (p5) {
   p5.setup = async () => {
     // p5.noLoop();
     p5.frameRate(60);
-    v.canvas = p5.createCanvas(350, 460);
+    v.canvas = p5.createCanvas(300, 440);
 
     await FaceLandmarkDetection.init("IMAGE");
 
     WithOpenCV.setup((/**  @type {opencv}  */ cv) => {
       p5.createImg(
-        "https://miro.medium.com/v2/resize:fit:634/format:webp/1*DGu2cT59lYlGPRqNFMOtSA.png",
-        "img1",
+        "https://img.freepik.com/premium-photo/beautiful-face-young-adult-woman-with-clean-fresh-skin_78203-1897.jpg",
+        "img2",
         "Anonymous",
         (img) => processImage(img, cv)
       );
-
       p5.createImg(
-        "https://miro.medium.com/v2/resize:fit:640/format:webp/1*QqdF-ubXx6YhG5dEwDarow.png",
-        "img2",
+        "https://img.freepik.com/fotos-gratis/retrato-da-vista-frontal-de-um-rosto-de-mulher-jovem-e-bela_186202-460.jpg?w=2000",
+        "img1",
         "Anonymous",
         (img) => processImage(img, cv)
       );
@@ -95,6 +95,7 @@ const script = function (p5) {
   };
   p5.draw = () => {
     if (v.imgs.length === 2) {
+      p5.noLoop();
       WithOpenCV.run((/**  @type {opencv}  */ cv) => {
         for (const delaunay of v.delaunay) {
           v.triangles.push(v.getTriangles(delaunay));
@@ -109,7 +110,6 @@ const script = function (p5) {
           const [p2x1, p2y1] = v.imaps[1][index1];
           const [p2x2, p2y2] = v.imaps[1][index2];
           const [p2x3, p2y3] = v.imaps[1][index3];
-          v.ref = [p2x1, p2y1, p2x2, p2y2, p2x3, p2y3];
 
           const t1 = cv.matFromArray(3, 1, cv.CV_32FC2, [
             p1x1,
@@ -163,7 +163,7 @@ const script = function (p5) {
             p2y3 - r2.y,
           ]);
 
-          cv.fillConvexPoly(mask, t2RectInt, new cv.Scalar(255), cv.LINE_AA, 0);
+          cv.fillConvexPoly(mask, t2RectInt, new cv.Scalar(255), cv.LINE_4, 0);
           const inverseMask = new cv.Mat();
           cv.bitwise_not(mask, inverseMask);
 
@@ -190,15 +190,24 @@ const script = function (p5) {
           const dst2 = new cv.Mat();
           const dst3 = new cv.Mat();
           const dst4 = new cv.Mat();
+          const dst5 = new cv.Mat();
 
           cv.bitwise_and(dst, dst, dst2, mask);
           cv.bitwise_and(roi2, roi2, dst3, inverseMask);
 
           cv.bitwise_or(dst2, dst3, dst4);
+          cv.addWeighted(dst4, v.alpha, roi2, 1 - v.alpha, 0, dst5);
 
-          dst4.copyTo(roi2);
+          dst5.copyTo(roi2);
         }
-        p5.noLoop();
+        // cv.GaussianBlur(
+        //   v.cvImgs[1],
+        //   v.cvImgs[1],
+        //   new cv.Size(17, 17),
+        //   0,
+        //   0,
+        //   cv.BORDER_DEFAULT
+        // );
         cv.imshow(v.canvas.elt, v.cvImgs[1]);
       });
     }
