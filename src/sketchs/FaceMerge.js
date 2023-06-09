@@ -163,7 +163,7 @@ const script = function (p5) {
             p2y3 - r2.y,
           ]);
 
-          cv.fillConvexPoly(mask, t2RectInt, new cv.Scalar(255), cv.LINE_4, 0);
+          cv.fillConvexPoly(mask, t2RectInt, new cv.Scalar(255), cv.LINE_8, 0);
           const inverseMask = new cv.Mat();
           cv.bitwise_not(mask, inverseMask);
 
@@ -200,14 +200,7 @@ const script = function (p5) {
 
           dst5.copyTo(roi2);
         }
-        // cv.GaussianBlur(
-        //   v.cvImgs[1],
-        //   v.cvImgs[1],
-        //   new cv.Size(17, 17),
-        //   0,
-        //   0,
-        //   cv.BORDER_DEFAULT
-        // );
+
         cv.imshow(v.canvas.elt, v.cvImgs[1]);
       });
     }
