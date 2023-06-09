@@ -5,7 +5,6 @@ import { FaceLandmarkDetection } from "../common/MediaPipeCommon";
 
 const v = factoryProxy({
   alpha: 0.5,
-  refCvImg: null,
   canvas: new p5.Element("canvas"),
   cvImgs: [],
   imgs: [],
@@ -45,6 +44,14 @@ const v = factoryProxy({
     const points = [];
     const map = {};
     const imap = {};
+    const limit = [
+      [0, 0],
+      [width - 1, 0],
+      [width / 2, 0],
+      [0, height - 1],
+      [0, height / 2],
+      [width - 1, height - 1],
+    ];
     for (const index of v.landmark_points_68) {
       points.push([
         faceLandmarks[index].x * width,
@@ -59,6 +66,13 @@ const v = factoryProxy({
         faceLandmarks[index].y * height,
       ];
     }
+    for (let index = 0; index < limit.length; index++) {
+      const point = limit[index];
+      const refIndex = index + 1000;
+      points.push([point[0], point[1]]);
+      map[`${point[0]}:${point[1]}`] = refIndex;
+      imap[refIndex] = [point[0], point[1]];
+    }
 
     return [points, map, imap];
   },
@@ -72,7 +86,6 @@ const v = factoryProxy({
  */
 const script = function (p5) {
   p5.setup = async () => {
-    // p5.noLoop();
     p5.frameRate(60);
     v.canvas = p5.createCanvas(300, 440);
 
@@ -83,13 +96,13 @@ const script = function (p5) {
         "https://img.freepik.com/premium-photo/beautiful-face-young-adult-woman-with-clean-fresh-skin_78203-1897.jpg",
         "img2",
         "Anonymous",
-        (img) => processImage(img, cv)
+        (img) => processImage(0, img, cv)
       );
       p5.createImg(
         "https://img.freepik.com/fotos-gratis/retrato-da-vista-frontal-de-um-rosto-de-mulher-jovem-e-bela_186202-460.jpg?w=2000",
         "img1",
         "Anonymous",
-        (img) => processImage(img, cv)
+        (img) => processImage(1, img, cv)
       );
     });
   };
@@ -212,16 +225,16 @@ new p5(script);
  * @param {p5.Element} img
  * @param {opencv} cv
  */
-function processImage(img, cv) {
-  v.imgs.push(img);
-  v.cvImgs.push(cv.imread(img.elt));
+function processImage(index, img, cv) {
+  v.imgs[index] = img;
+  v.cvImgs[index] = cv.imread(img.elt);
   img.addClass("h-[150px] inline-block");
 
   const allPoints = FaceLandmarkDetection.detectForImage(img.elt)
     ?.faceLandmarks?.[0];
   const [points, map, imap] = v.getKeypoints(allPoints, img.width, img.height);
-  v.points.push(points);
-  v.maps.push(map);
-  v.imaps.push(imap);
-  v.delaunay.push(Delaunay.from(points));
+  v.points[index] = points;
+  v.maps[index] = map;
+  v.imaps[index] = imap;
+  v.delaunay[index] = Delaunay.from(points);
 }
