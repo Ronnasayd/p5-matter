@@ -11,9 +11,7 @@ const script = function (p5) {
   p5.setup = () => {
     p5.frameRate(60);
     p5.createCanvas(400, 400);
-    WithOpenCV.setup((/**  @type {opencv}  */ cv) => {
-      console.log(cv.getBuildInformation());
-    });
+    WithOpenCV.setup((/**  @type {opencv}  */ cv) => {});
   };
   p5.draw = () => {
     WithOpenCV.run((/**  @type {opencv}  */ cv) => {});

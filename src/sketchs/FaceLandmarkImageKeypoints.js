@@ -36,6 +36,7 @@ const v = factoryProxy({
   getKeypoints: function () {
     const points = [];
     const map = {};
+    const imap = {};
     for (const index of v.landmark_points_68) {
       points.push([
         this.faceLandmarks[index].x * v.CANVAS_WIDTH,
@@ -46,9 +47,14 @@ const v = factoryProxy({
           this.faceLandmarks[index].y * v.CANVAS_HEIGHT
         }`
       ] = index;
+
+      imap[index] = [
+        this.faceLandmarks[index].x * v.CANVAS_WIDTH,
+        this.faceLandmarks[index].y * v.CANVAS_HEIGHT,
+      ];
     }
 
-    return [points, map];
+    return [points, map, imap];
   },
   faceLandmarks: [],
   delaunay: [],
@@ -84,7 +90,7 @@ const script = function (p5) {
   p5.draw = () => {
     p5.background(255, 0);
     if (!!v.faceLandmarks.length) {
-      const [points, map] = v.getKeypoints();
+      const [points, map, imap] = v.getKeypoints();
       v.delaunay = Delaunay.from(points);
 
       p5.noFill();
