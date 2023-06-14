@@ -2,6 +2,7 @@ import { Delaunay } from "d3-delaunay";
 import p5 from "p5";
 import { factoryProxy, landmarks2Points } from "../common";
 import { FaceLandmarkDetection } from "../common/MediaPipeCommon";
+import "../common/p5.ext";
 
 const v = factoryProxy({
   CANVAS_WIDTH: 550,
@@ -24,21 +25,22 @@ const v = factoryProxy({
  * @param {p5} p5
  */
 const script = function (p5) {
-  p5.createFileInput(async function (file) {
-    v.refImg = p5.createImg(file.data);
-    v.refImg.addClass("absolute z-[0] h-[550px]");
-    v.refImg.elt.onload = async (e) => {
-      v.CANVAS_WIDTH = (v.refImg.width / v.refImg.height) * v.CANVAS_HEIGHT;
-      v.canvas = p5.createCanvas(v.CANVAS_WIDTH, v.CANVAS_HEIGHT);
-      v.canvas.addClass("absolute z-[1]");
-      v.faceLandmarks = (
-        await FaceLandmarkDetection.detectForImage(v.refImg.elt)
-      ).faceLandmarks[0];
-    };
-  });
   p5.setup = async () => {
     await FaceLandmarkDetection.init("IMAGE");
     p5.frameRate(v.fps);
+    v.refImg = await p5.createImgPromise(
+      "https://img.freepik.com/fotos-gratis/retrato-da-vista-frontal-de-um-rosto-de-mulher-jovem-e-bela_186202-460.jpg?w=2000",
+      "img1",
+      "Anonymous"
+    );
+    v.CANVAS_HEIGHT = p5.windowHeight;
+    v.CANVAS_WIDTH = (v.refImg.width / v.refImg.height) * v.CANVAS_HEIGHT;
+    v.canvas = p5.createCanvas(v.CANVAS_WIDTH, v.CANVAS_HEIGHT);
+    v.canvas.addClass("absolute z-[1]");
+    v.refImg.addClass("absolute z-[0] h-screen");
+    v.faceLandmarks = (
+      await FaceLandmarkDetection.detectForImage(v.refImg.elt)
+    ).faceLandmarks[0];
   };
   p5.draw = () => {
     p5.background(255, 0);
