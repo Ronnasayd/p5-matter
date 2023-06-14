@@ -2,18 +2,7 @@ import { Delaunay } from "d3-delaunay";
 import p5 from "p5";
 import { WithOpenCV, factoryProxy } from "../common";
 import { FaceLandmarkDetection } from "../common/MediaPipeCommon";
-
-p5.prototype.createImgPromise = function (
-  src = "",
-  alt = "",
-  crossOrigin = ""
-) {
-  return new Promise((resolve, reject) => {
-    this.createImg(src, alt, crossOrigin, (img) => {
-      resolve(img);
-    });
-  });
-};
+import "../common/p5.ext";
 
 const v = factoryProxy({
   alpha: 0.5,
@@ -101,6 +90,7 @@ const v = factoryProxy({
 const script = function (p5) {
   p5.setup = async () => {
     p5.frameRate(60);
+
     v.canvas = p5.createCanvas(300, 440);
 
     await FaceLandmarkDetection.init("IMAGE");
@@ -231,7 +221,7 @@ const script = function (p5) {
 };
 new p5(script);
 /**
- *
+ * @param {number} index
  * @param {p5.Element} img
  * @param {opencv} cv
  */
