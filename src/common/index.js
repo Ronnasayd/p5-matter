@@ -52,7 +52,7 @@ export class WithOpenCV {
     }
     return new Promise((resolve) => {
       console.log("inserting opencv ...");
-      let script = document.createElement("script");
+      let script = window.document.createElement("script");
       script.src = "opencv.js";
       script.onload = () => {
         cv["onRuntimeInitialized"] = () => {
@@ -64,7 +64,7 @@ export class WithOpenCV {
         };
       };
 
-      document.body.appendChild(script);
+      window.document.body.appendChild(script);
     });
   }
 }
@@ -117,3 +117,24 @@ export const keypoints68 = {
     317, 14, 87,
   ],
 };
+
+export function getPointsBySVG(path) {
+  return new Promise((resolve, reject) => {
+    const points = {};
+    fetch(path).then((response) => {
+      response.text().then((svg) => {
+        const div = window.document.createElement("div");
+        div.innerHTML = svg;
+        window.document.body.appendChild(div);
+        const paths = window.document.querySelectorAll("path");
+        for (const path of paths) {
+          const index = path.getAttribute("id");
+          const { x, y } = path.getBBox();
+          if (x >= 0 && y >= 0) points[index] = [x, y];
+        }
+        window.document.body.removeChild(div);
+        resolve(points);
+      });
+    });
+  });
+}
