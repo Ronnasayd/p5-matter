@@ -3,6 +3,18 @@ import p5 from "p5";
 import { WithOpenCV, factoryProxy } from "../common";
 import { FaceLandmarkDetection } from "../common/MediaPipeCommon";
 
+p5.prototype.createImgPromise = function (
+  src = "",
+  alt = "",
+  crossOrigin = ""
+) {
+  return new Promise((resolve, reject) => {
+    this.createImg(src, alt, crossOrigin, (img) => {
+      resolve(img);
+    });
+  });
+};
+
 const v = factoryProxy({
   alpha: 0.5,
   canvas: new p5.Element("canvas"),
@@ -91,133 +103,129 @@ const script = function (p5) {
 
     await FaceLandmarkDetection.init("IMAGE");
 
-    WithOpenCV.setup((/**  @type {opencv}  */ cv) => {
-      p5.createImg(
+    WithOpenCV.setup(async (/**  @type {opencv}  */ cv) => {
+      let img;
+      img = await p5.createImgPromise(
         "https://img.freepik.com/premium-photo/beautiful-face-young-adult-woman-with-clean-fresh-skin_78203-1897.jpg",
         "img2",
-        "Anonymous",
-        (img) => processImage(0, img, cv)
+        "Anonymous"
       );
-      p5.createImg(
+      processImage(0, img, cv);
+      img = await p5.createImgPromise(
         "https://img.freepik.com/fotos-gratis/retrato-da-vista-frontal-de-um-rosto-de-mulher-jovem-e-bela_186202-460.jpg?w=2000",
         "img1",
-        "Anonymous",
-        (img) => processImage(1, img, cv)
+        "Anonymous"
       );
+      processImage(1, img, cv);
+      for (const delaunay of v.delaunay) {
+        v.triangles.push(v.getTriangles(delaunay));
+      }
+      for (const triangle of v.triangles[0]) {
+        const [p1x1, p1y1, p1x2, p1y2, p1x3, p1y3] = triangle;
+
+        const index1 = v.maps[0][`${p1x1}:${p1y1}`];
+        const index2 = v.maps[0][`${p1x2}:${p1y2}`];
+        const index3 = v.maps[0][`${p1x3}:${p1y3}`];
+
+        const [p2x1, p2y1] = v.imaps[1][index1];
+        const [p2x2, p2y2] = v.imaps[1][index2];
+        const [p2x3, p2y3] = v.imaps[1][index3];
+
+        const t1 = cv.matFromArray(3, 1, cv.CV_32FC2, [
+          p1x1,
+          p1y1,
+          p1x2,
+          p1y2,
+          p1x3,
+          p1y3,
+        ]);
+
+        const t2 = cv.matFromArray(3, 1, cv.CV_32FC2, [
+          p2x1,
+          p2y1,
+          p2x2,
+          p2y2,
+          p2x3,
+          p2y3,
+        ]);
+
+        const r1 = cv.boundingRect(t1);
+        const r2 = cv.boundingRect(t2);
+
+        const mask = new cv.Mat.zeros(
+          new cv.Size(r2.width, r2.height),
+          cv.CV_8UC1
+        );
+
+        const t1Rect = cv.matFromArray(3, 1, cv.CV_32FC2, [
+          p1x1 - r1.x,
+          p1y1 - r1.y,
+          p1x2 - r1.x,
+          p1y2 - r1.y,
+          p1x3 - r1.x,
+          p1y3 - r1.y,
+        ]);
+        const t2Rect = cv.matFromArray(3, 1, cv.CV_32FC2, [
+          p2x1 - r2.x,
+          p2y1 - r2.y,
+          p2x2 - r2.x,
+          p2y2 - r2.y,
+          p2x3 - r2.x,
+          p2y3 - r2.y,
+        ]);
+
+        const t2RectInt = cv.matFromArray(3, 1, cv.CV_32SC2, [
+          p2x1 - r2.x,
+          p2y1 - r2.y,
+          p2x2 - r2.x,
+          p2y2 - r2.y,
+          p2x3 - r2.x,
+          p2y3 - r2.y,
+        ]);
+
+        cv.fillConvexPoly(mask, t2RectInt, new cv.Scalar(255), cv.LINE_8, 0);
+        const inverseMask = new cv.Mat();
+        cv.bitwise_not(mask, inverseMask);
+
+        const rect1 = new cv.Rect(r1.x, r1.y, r1.width, r1.height);
+        const rect2 = new cv.Rect(r2.x, r2.y, r2.width, r2.height);
+
+        const roi1 = v.cvImgs[0].roi(rect1);
+        const roi2 = v.cvImgs[1].roi(rect2);
+
+        const size = new cv.Size(r2.width, r2.height);
+
+        const transform = cv.getAffineTransform(t1Rect, t2Rect);
+
+        const dst = new cv.Mat();
+
+        cv.warpAffine(
+          roi1,
+          dst,
+          transform,
+          size,
+          cv.INTER_LINEAR,
+          cv.BORDER_REFLECT_101
+        );
+        const dst2 = new cv.Mat();
+        const dst3 = new cv.Mat();
+        const dst4 = new cv.Mat();
+        const dst5 = new cv.Mat();
+
+        cv.bitwise_and(dst, dst, dst2, mask);
+        cv.bitwise_and(roi2, roi2, dst3, inverseMask);
+
+        cv.bitwise_or(dst2, dst3, dst4);
+        cv.addWeighted(dst4, v.alpha, roi2, 1 - v.alpha, 0, dst5);
+
+        dst5.copyTo(roi2);
+      }
+
+      cv.imshow(v.canvas.elt, v.cvImgs[1]);
     });
+    p5.noLoop();
   };
-  p5.draw = () => {
-    if (v.imgs.length === 2) {
-      p5.noLoop();
-      WithOpenCV.run((/**  @type {opencv}  */ cv) => {
-        for (const delaunay of v.delaunay) {
-          v.triangles.push(v.getTriangles(delaunay));
-        }
-        for (const triangle of v.triangles[0]) {
-          const [p1x1, p1y1, p1x2, p1y2, p1x3, p1y3] = triangle;
-
-          const index1 = v.maps[0][`${p1x1}:${p1y1}`];
-          const index2 = v.maps[0][`${p1x2}:${p1y2}`];
-          const index3 = v.maps[0][`${p1x3}:${p1y3}`];
-
-          const [p2x1, p2y1] = v.imaps[1][index1];
-          const [p2x2, p2y2] = v.imaps[1][index2];
-          const [p2x3, p2y3] = v.imaps[1][index3];
-
-          const t1 = cv.matFromArray(3, 1, cv.CV_32FC2, [
-            p1x1,
-            p1y1,
-            p1x2,
-            p1y2,
-            p1x3,
-            p1y3,
-          ]);
-
-          const t2 = cv.matFromArray(3, 1, cv.CV_32FC2, [
-            p2x1,
-            p2y1,
-            p2x2,
-            p2y2,
-            p2x3,
-            p2y3,
-          ]);
-
-          const r1 = cv.boundingRect(t1);
-          const r2 = cv.boundingRect(t2);
-
-          const mask = new cv.Mat.zeros(
-            new cv.Size(r2.width, r2.height),
-            cv.CV_8UC1
-          );
-
-          const t1Rect = cv.matFromArray(3, 1, cv.CV_32FC2, [
-            p1x1 - r1.x,
-            p1y1 - r1.y,
-            p1x2 - r1.x,
-            p1y2 - r1.y,
-            p1x3 - r1.x,
-            p1y3 - r1.y,
-          ]);
-          const t2Rect = cv.matFromArray(3, 1, cv.CV_32FC2, [
-            p2x1 - r2.x,
-            p2y1 - r2.y,
-            p2x2 - r2.x,
-            p2y2 - r2.y,
-            p2x3 - r2.x,
-            p2y3 - r2.y,
-          ]);
-
-          const t2RectInt = cv.matFromArray(3, 1, cv.CV_32SC2, [
-            p2x1 - r2.x,
-            p2y1 - r2.y,
-            p2x2 - r2.x,
-            p2y2 - r2.y,
-            p2x3 - r2.x,
-            p2y3 - r2.y,
-          ]);
-
-          cv.fillConvexPoly(mask, t2RectInt, new cv.Scalar(255), cv.LINE_8, 0);
-          const inverseMask = new cv.Mat();
-          cv.bitwise_not(mask, inverseMask);
-
-          const rect1 = new cv.Rect(r1.x, r1.y, r1.width, r1.height);
-          const rect2 = new cv.Rect(r2.x, r2.y, r2.width, r2.height);
-
-          const roi1 = v.cvImgs[0].roi(rect1);
-          const roi2 = v.cvImgs[1].roi(rect2);
-
-          const size = new cv.Size(r2.width, r2.height);
-
-          const transform = cv.getAffineTransform(t1Rect, t2Rect);
-
-          const dst = new cv.Mat();
-
-          cv.warpAffine(
-            roi1,
-            dst,
-            transform,
-            size,
-            cv.INTER_LINEAR,
-            cv.BORDER_REFLECT_101
-          );
-          const dst2 = new cv.Mat();
-          const dst3 = new cv.Mat();
-          const dst4 = new cv.Mat();
-          const dst5 = new cv.Mat();
-
-          cv.bitwise_and(dst, dst, dst2, mask);
-          cv.bitwise_and(roi2, roi2, dst3, inverseMask);
-
-          cv.bitwise_or(dst2, dst3, dst4);
-          cv.addWeighted(dst4, v.alpha, roi2, 1 - v.alpha, 0, dst5);
-
-          dst5.copyTo(roi2);
-        }
-
-        cv.imshow(v.canvas.elt, v.cvImgs[1]);
-      });
-    }
-  };
+  p5.draw = () => {};
 };
 new p5(script);
 /**
