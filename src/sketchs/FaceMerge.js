@@ -58,10 +58,12 @@ const v = factoryProxy({
     const imap = {};
     const limit = [
       [0, 0],
-      [width - 1, 0],
-      [width / 2, 0],
-      [0, height - 1],
       [0, height / 2],
+      [width - 1, height / 2],
+      [0, height - 1],
+      [width / 2, 0],
+      [width - 1, 0],
+      [width / 2, height - 1],
       [width - 1, height - 1],
     ];
     for (const index of v.landmark_points_68) {
