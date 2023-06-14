@@ -1,15 +1,14 @@
 import "p5";
-export class ext {
-  static teste() {
-    console.log("AAAAA");
-  }
-}
+
 declare module "p5" {
-  export interface Element {
+  type VIDEO = "video";
+
+  interface Element {
     width: number;
     height: number;
   }
   interface p5InstanceExtensions {
+    readonly VIDEO: "video";
     createImgPromise(
       src: string,
       alt: string,

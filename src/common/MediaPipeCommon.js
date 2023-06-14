@@ -22,16 +22,20 @@ export class FaceLandmarkDetection {
     });
   }
 
+  /**
+   *
+   * @param {import("@mediapipe/tasks-vision").ImageSource} image
+   * @returns
+   */
   static detectForImage(image) {
-    if (!!this.faceLandmarker) {
-      return this.faceLandmarker.detect(image);
-    }
-    return { faceLandmarkers: [] };
+    return this?.faceLandmarker?.detect(image);
   }
+  /**
+   *
+   * @param {import("@mediapipe/tasks-vision").ImageSource} video
+   * @returns
+   */
   static detectForVideo(video) {
-    if (!!this.faceLandmarker) {
-      return this.faceLandmarker.detectForVideo(video, Date.now());
-    }
-    return { faceLandmarkers: [] };
+    return this?.faceLandmarker?.detectForVideo(video, Date.now());
   }
 }

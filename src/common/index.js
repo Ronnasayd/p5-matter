@@ -1,5 +1,8 @@
 import Matter from "matter-js";
 import p5 from "p5";
+/**
+ * @typedef {import('opencv-ts').default} opencv
+ */
 export class Element {
   map = {
     circle: "circle",
@@ -33,6 +36,10 @@ export class Element {
 export class WithOpenCV {
   load = false;
 
+  /**
+   *
+   * @param {(cv:opencv)=>void} callback
+   */
   static run(callback) {
     if (this.load) {
       this._insert().then(() => {
@@ -40,6 +47,10 @@ export class WithOpenCV {
       });
     }
   }
+  /**
+   *
+   * @param {(cv:opencv)=>void} callback
+   */
   static setup(callback) {
     this._insert().then(() => {
       if (callback) callback(cv);

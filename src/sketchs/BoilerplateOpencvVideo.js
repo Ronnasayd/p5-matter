@@ -1,33 +1,46 @@
+//@ts-check
 import p5 from "p5";
-import { WithOpenCV } from "../common";
-
+import { WithOpenCV, factoryProxy } from "../common";
 /**
  * @typedef {import('opencv-ts').default} opencv
  */
+const v = factoryProxy({
+  width: 400,
+  height: 400,
+  canvas: new p5.Element("canvas"),
+  videoCapture: new p5.Element("video"),
+  /** @type {opencv['Mat']} */
+  // @ts-ignore
+  src: null,
+  /** @type {opencv['VideoCapture']} */
+  // @ts-ignore
+  capture: null,
+});
+
 /**
  * @param {p5} p5
  */
 const script = function (p5) {
-  const CANVAS_WIDTH = 400;
-  const CANVAS_HEIGHT = 400;
-
-  let videoCapture, capture, src, canvas;
-
   p5.setup = () => {
     p5.frameRate(60);
-    canvas = p5.createCanvas(CANVAS_WIDTH, CANVAS_HEIGHT);
-    videoCapture = p5.createCapture(p5.VIDEO);
-    WithOpenCV.setup((/**  @type {opencv}  */ cv) => {
-      videoCapture.size(CANVAS_WIDTH, CANVAS_HEIGHT);
-      videoCapture.hide();
-      capture = new cv.VideoCapture(videoCapture.elt);
-      src = new cv.Mat(videoCapture.width, videoCapture.height, cv.CV_8UC4);
+    v.canvas = p5.createCanvas(v.width, v.height);
+    v.videoCapture = p5.createCapture(p5.VIDEO);
+
+    WithOpenCV.setup((cv) => {
+      v.videoCapture.size(v.width, v.height);
+      v.videoCapture.hide();
+      v.capture = new cv.VideoCapture(v.videoCapture.elt);
+      v.src = new cv.Mat(
+        v.videoCapture.width,
+        v.videoCapture.height,
+        cv.CV_8UC4
+      );
     });
   };
   p5.draw = () => {
-    WithOpenCV.run((/**  @type {opencv}  */ cv) => {
-      capture?.read(src);
-      cv.imshow(canvas.elt, src);
+    WithOpenCV.run((cv) => {
+      v.capture.read(v.src);
+      cv.imshow(v.canvas.elt, v.src);
     });
   };
 };

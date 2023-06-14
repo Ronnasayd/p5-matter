@@ -4,10 +4,20 @@ import { WithOpenCV, factoryProxy } from "../common";
 import { FaceLandmarkDetection } from "../common/MediaPipeCommon";
 import "../common/p5.ext";
 
+/**
+ * @typedef {import('opencv-ts').default} opencv
+ */
+
 const v = factoryProxy({
   alpha: 0.5,
   canvas: new p5.Element("canvas"),
+  /**
+   * @type {opencv['Mat'][]}
+   */
   cvImgs: [],
+  /**
+   * @type {p5.Element[]}
+   */
   imgs: [],
   points: [],
   delaunay: [],
@@ -21,7 +31,11 @@ const v = factoryProxy({
     61, 39, 37, 0, 267, 269, 291, 405, 314, 17, 84, 181, 78, 82, 13, 312, 308,
     317, 14, 87,
   ],
-  getTriangles: function (delaunay) {
+  /**
+   *
+   * @param {Delaunay} delaunay
+   * @returns
+   */ getTriangles: function (delaunay) {
     const triangles = [];
     for (let index = 0; index < delaunay.triangles.length; index = index + 3) {
       const t0 = delaunay.triangles[index];
@@ -41,6 +55,13 @@ const v = factoryProxy({
     }
     return triangles;
   },
+  /**
+   *
+   * @param {Array<{x:number,y:number,z:number}>} faceLandmarks
+   * @param {number} width
+   * @param {number} height
+   * @returns
+   */
   getKeypoints: function (faceLandmarks, width, height) {
     const points = [];
     const map = {};
@@ -82,9 +103,6 @@ const v = factoryProxy({
 });
 
 /**
- * @typedef {import('opencv-ts').default} opencv
- */
-/**
  * @param {p5} p5
  */
 const script = function (p5) {
@@ -95,7 +113,7 @@ const script = function (p5) {
 
     await FaceLandmarkDetection.init("IMAGE");
 
-    WithOpenCV.setup(async (/**  @type {opencv}  */ cv) => {
+    WithOpenCV.setup(async (cv) => {
       let img;
       img = await p5.createImgPromise(
         "https://img.freepik.com/premium-photo/beautiful-face-young-adult-woman-with-clean-fresh-skin_78203-1897.jpg",

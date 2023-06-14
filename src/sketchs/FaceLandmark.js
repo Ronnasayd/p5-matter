@@ -20,9 +20,6 @@ const v = factoryProxy({
 });
 
 /**
- * @typedef {import('opencv-ts').default} opencv
- */
-/**
  * @param {p5} p5
  */
 const script = function (p5) {
