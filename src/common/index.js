@@ -1,3 +1,4 @@
+import { Delaunay } from "d3-delaunay";
 import Matter from "matter-js";
 import p5 from "p5";
 /**
@@ -152,4 +153,70 @@ export function getPointsBySVG(path) {
       });
     });
   });
+}
+
+export class MapPoints {
+  build(map) {
+    this._mapKeys = {};
+    this._mapPoints = {};
+    this._points = [];
+    for (const key in map) {
+      this._mapKeys[key] = map[key];
+      this._mapPoints[`${map[key][0]}:${map[key][1]}`] = key;
+      this._points.push(map[key]);
+    }
+    return this;
+  }
+  getPoints() {
+    return this._points;
+  }
+  getPointByIndex(index) {
+    return this._mapKeys[index];
+  }
+  getIndexByPoint(x, y) {
+    return this._mapPoints[`${x}:${y}`];
+  }
+
+  getTriangleByIndexes(indexes) {
+    const triangle = [];
+    for (const index of indexes) {
+      triangle.push(...this._mapKeys[index]);
+    }
+    return triangle;
+  }
+  getIndexesByTriangle(triangle) {
+    const indexes = [];
+    for (let index = 0; index < triangle.length; index = index + 2) {
+      const px = triangle[index];
+      const py = triangle[index + 1];
+
+      indexes.push(this._mapPoints[`${px}:${py}`]);
+    }
+    return indexes;
+  }
+  getTriangles() {
+    this._delaunay = Delaunay.from(this._points);
+    const triangles = [];
+    for (
+      let index = 0;
+      index < this._delaunay.triangles.length;
+      index = index + 3
+    ) {
+      const t0 = this._delaunay.triangles[index];
+      const t1 = this._delaunay.triangles[index + 1];
+      const t2 = this._delaunay.triangles[index + 2];
+
+      const p0x = this._delaunay.points[t0 * 2];
+      const p0y = this._delaunay.points[t0 * 2 + 1];
+
+      const p1x = this._delaunay.points[t1 * 2];
+      const p1y = this._delaunay.points[t1 * 2 + 1];
+
+      const p2x = this._delaunay.points[t2 * 2];
+      const p2y = this._delaunay.points[t2 * 2 + 1];
+
+      triangles.push([p0x, p0y, p1x, p1y, p2x, p2y]);
+    }
+    return triangles;
+  }
 }
