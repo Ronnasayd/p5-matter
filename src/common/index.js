@@ -115,7 +115,7 @@ export function landmarks2Points(landmarks, CANVAS_WIDTH, CANVAS_HEIGHT) {
   return points;
 }
 
-export const keypoints68 = {
+export const KEYPOINTS_68 = {
   Contour: [
     162, 234, 93, 58, 172, 136, 149, 148, 152, 377, 378, 365, 397, 288, 323,
     454, 389, 301, 293, 334, 296, 336, 107, 66, 105, 63, 71,
@@ -128,7 +128,11 @@ export const keypoints68 = {
     317, 14, 87,
   ],
 };
-
+/**
+ *
+ * @param {string} path
+ * @returns
+ */
 export function getPointsBySVG(path) {
   return new Promise((resolve, reject) => {
     const points = {};

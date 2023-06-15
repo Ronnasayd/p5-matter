@@ -1,5 +1,5 @@
 import p5 from "p5";
-import { factoryProxy, keypoints68 } from "../common";
+import { factoryProxy, KEYPOINTS_68 } from "../common";
 import { FaceLandmarkDetection } from "../common/MediaPipeCommon";
 
 const v = factoryProxy({
@@ -25,7 +25,7 @@ const script = function (p5) {
       v.video.addClass("absolute z-[0] top-0");
       v.canvas = p5
         .createCanvas(v.video.width, v.video.height)
-        .addClass(`absolute z-[1] w-full h-full`);
+        .addClass("absolute z-[1] w-full h-full");
     });
     await FaceLandmarkDetection.init("VIDEO");
   };
@@ -39,7 +39,7 @@ const script = function (p5) {
       p5.stroke("#ff0000");
       p5.strokeWeight(2);
       p5.beginShape();
-      for (const index of keypoints68.Contour) {
+      for (const index of KEYPOINTS_68.Contour) {
         p5.vertex(
           v.faceLandmarks[index].x * v.canvas.width,
           v.faceLandmarks[index].y * v.canvas.height
@@ -48,7 +48,7 @@ const script = function (p5) {
       p5.endShape(p5.CLOSE);
 
       p5.beginShape();
-      for (const index of keypoints68.LeftEye) {
+      for (const index of KEYPOINTS_68.LeftEye) {
         p5.vertex(
           v.faceLandmarks[index].x * v.canvas.width,
           v.faceLandmarks[index].y * v.canvas.height
@@ -57,7 +57,7 @@ const script = function (p5) {
       p5.endShape(p5.CLOSE);
 
       p5.beginShape();
-      for (const index of keypoints68.RightEye) {
+      for (const index of KEYPOINTS_68.RightEye) {
         p5.vertex(
           v.faceLandmarks[index].x * v.canvas.width,
           v.faceLandmarks[index].y * v.canvas.height
@@ -65,7 +65,7 @@ const script = function (p5) {
       }
       p5.endShape(p5.CLOSE);
       p5.beginShape();
-      for (const index of keypoints68.Nose) {
+      for (const index of KEYPOINTS_68.Nose) {
         p5.vertex(
           v.faceLandmarks[index].x * v.canvas.width,
           v.faceLandmarks[index].y * v.canvas.height
@@ -74,7 +74,7 @@ const script = function (p5) {
       p5.endShape();
 
       p5.beginShape();
-      for (const index of keypoints68.Mounth) {
+      for (const index of KEYPOINTS_68.Mounth) {
         p5.vertex(
           v.faceLandmarks[index].x * v.canvas.width,
           v.faceLandmarks[index].y * v.canvas.height
