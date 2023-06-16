@@ -4,24 +4,28 @@
 import "../common/p5.ext";
 
 import p5 from "p5";
-import { WithOpenCV, factoryProxy } from "../common";
+import { KEYPOINTS_68, WithOpenCV, factoryProxy } from "../common";
 import { FaceLandmarkDetection } from "../common/MediaPipeCommon";
 /** @typedef {import('opencv-ts').default} opencv */
 
-const v = factoryProxy({
-  width: 600,
-  height: 800,
-  fps: 24,
-  index: 0,
-  /** @type {undefined|number[][]}*/ points: undefined,
-  img_1: new p5.Element("img"),
-  canvas: new p5.Element("canvas"),
-  /** @type {opencv['Mat']|null} */ src_1: null,
-});
+const v = factoryProxy(
+  {
+    width: 600,
+    height: 800,
+    fps: 24,
+    index: 0,
+    /** @type {undefined|number[][]}*/ points: undefined,
+    img_1: new p5.Element("img"),
+    canvas: new p5.Element("canvas"),
+    /** @type {opencv['Mat']|null} */ src_1: null,
+    KEYPOINTS_68,
+  },
+  ["index"]
+);
 
 /** @param {p5} p5 */
 const script = function (p5) {
-  p5.mouseMoved = function (event) {
+  p5.mouseMoved = function (/** @type {MouseEvent}*/ event) {
     const mouse = p5.createVector(
       event?.offsetX / v.canvas.width,
       event?.offsetY / v.canvas.height
@@ -55,22 +59,25 @@ const script = function (p5) {
       v.canvas = p5.createCanvas(v.width, v.height);
 
       v.src_1 = cv.imread(v.img_1.elt);
+
       v.points = (
         await FaceLandmarkDetection.detectForImage(v.img_1.elt)
-      )?.faceLandmarks?.[0]?.map((p) => [
-        p.x * v.img_1.width,
-        p.y * v.img_1.height,
-      ]);
+      )?.faceLandmarks?.[0]
+        ?.map((p) => [p.x * v.img_1.width, p.y * v.img_1.height])
+        .filter((p, index) => v.KEYPOINTS_68.ALL().includes(index));
       v.img_1.hide();
     });
   };
   p5.draw = () => {
+    // @ts-ignore
     p5.clear();
     WithOpenCV.run((cv) => {
       if (v.points && v.src_1) {
         cv.imshow(v.canvas.elt, v.src_1);
         p5.fill("#00ffff");
-        for (const point of v.points) {
+        for (let index = 0; index < v.points?.length; index++) {
+          const point = v?.points[index];
+
           p5.circle(point[0], point[1], 5);
         }
 

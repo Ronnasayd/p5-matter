@@ -83,17 +83,16 @@ export class WithOpenCV {
 /**
  * @template U
  * @param {U} object
+ * @param {string[]} keys
  * @returns {U}
  */
-export function factoryProxy(object) {
-  const _keys = [];
-
+export function factoryProxy(object = {}, keys = []) {
   const handler = {
     get(target, key) {
       return Reflect.get(target, key);
     },
     set(target, key, value) {
-      if (_keys.includes(key)) {
+      if (keys.includes(key)) {
         if (typeof value === "object") {
           console.log(`[${key}]:`, value);
         } else {
@@ -105,9 +104,6 @@ export function factoryProxy(object) {
 
       return Reflect.set(target, key, value);
     },
-  };
-  object.log = (key) => {
-    _keys.push(key);
   };
   return new Proxy(object, handler);
 }
@@ -132,6 +128,15 @@ export const KEYPOINTS_68 = {
     61, 39, 37, 0, 267, 269, 291, 405, 314, 17, 84, 181, 78, 82, 13, 312, 308,
     317, 14, 87,
   ],
+  ALL: function () {
+    return [
+      ...this.Contour,
+      ...this.RightEye,
+      ...this.LeftEye,
+      ...this.Nose,
+      ...this.Mounth,
+    ];
+  },
 };
 /**
  *

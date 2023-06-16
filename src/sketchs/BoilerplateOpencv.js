@@ -7,11 +7,14 @@ import "../common/p5.ext";
 
 /** @typedef {import('opencv-ts').default} opencv */
 
-const v = factoryProxy({
-  width: 500,
-  height: 500,
-  fps: 60,
-});
+const v = factoryProxy(
+  {
+    width: 500,
+    height: 500,
+    fps: 60,
+  },
+  []
+);
 
 /** @param {p5} p5 */
 const script = function (p5) {

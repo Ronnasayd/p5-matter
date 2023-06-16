@@ -6,15 +6,18 @@ import { WithOpenCV, factoryProxy } from "../common";
 import "../common/p5.ext";
 
 /**  @typedef {import('opencv-ts').default} opencv */
-const v = factoryProxy({
-  width: 500,
-  height: 500,
-  fps: 60,
-  canvas: new p5.Element("canvas"),
-  videoCapture: new p5.Element("video"),
-  /** @type {opencv['Mat']|null} */ src: null,
-  /** @type {opencv['VideoCapture']|null} */ capture: null,
-});
+const v = factoryProxy(
+  {
+    width: 500,
+    height: 500,
+    fps: 60,
+    canvas: new p5.Element("canvas"),
+    videoCapture: new p5.Element("video"),
+    /** @type {opencv['Mat']|null} */ src: null,
+    /** @type {opencv['VideoCapture']|null} */ capture: null,
+  },
+  []
+);
 
 /**  @param {p5} p5 */
 const script = function (p5) {
