@@ -22,8 +22,8 @@ const v = factoryProxy({
   delaunay: {},
   /** @type {MapPoints|null}*/ mapPointsFilter: null,
   /** @type {MapPoints|null} */ mapPointsFace: null,
-  /** @type {opencv['Mat']|null}*/ srcImgCV: null,
-  /** @type {opencv['Mat']|null}*/ filterImgCV: null,
+  /** @type {?opencv['Mat']}*/ srcImgCV: null,
+  /** @type {?opencv['Mat']}*/ filterImgCV: null,
 });
 
 /**

@@ -13,8 +13,8 @@ const v = factoryProxy(
     fps: 60,
     canvas: new p5.Element("canvas"),
     videoCapture: new p5.Element("video"),
-    /** @type {opencv['Mat']|null} */ src: null,
-    /** @type {opencv['VideoCapture']|null} */ capture: null,
+    /** @type {?opencv['Mat']} */ src: null,
+    /** @type {?opencv['VideoCapture']} */ capture: null,
   },
   []
 );
