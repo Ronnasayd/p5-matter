@@ -12,6 +12,7 @@ const v = factoryProxy(
     width: 500,
     height: 500,
     fps: 60,
+    canvas: new p5.Element("canvas"),
   },
   []
 );
@@ -20,7 +21,7 @@ const v = factoryProxy(
 const script = function (p5) {
   p5.setup = () => {
     p5.frameRate(v.fps);
-    p5.createCanvas(v.width, v.height);
+    v.canvas = p5.createCanvas(v.width, v.height);
     WithOpenCV.setup((cv) => {});
   };
   p5.draw = () => {
