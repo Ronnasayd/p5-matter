@@ -11,9 +11,7 @@ const v = factoryProxy({
   fps: 60,
 });
 
-/**
- * @param {p5} p5
- */
+/** @param {p5} p5 */
 const script = function (p5) {
   p5.setup = () => {
     p5.frameRate(v.fps);

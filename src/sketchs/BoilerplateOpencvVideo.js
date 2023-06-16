@@ -1,28 +1,21 @@
 //@ts-check
 import p5 from "p5";
 import { WithOpenCV, factoryProxy } from "../common";
-/**
- * @typedef {import('opencv-ts').default} opencv
- */
+/**  @typedef {import('opencv-ts').default} opencv */
 const v = factoryProxy({
-  width: 400,
-  height: 400,
+  width: 500,
+  height: 500,
+  fps: 60,
   canvas: new p5.Element("canvas"),
   videoCapture: new p5.Element("video"),
-  /** @type {opencv['Mat']} */
-  // @ts-ignore
-  src: null,
-  /** @type {opencv['VideoCapture']} */
-  // @ts-ignore
-  capture: null,
+  /** @type {opencv['Mat']|null} */ src: null,
+  /** @type {opencv['VideoCapture']|null} */ capture: null,
 });
 
-/**
- * @param {p5} p5
- */
+/**  @param {p5} p5 */
 const script = function (p5) {
   p5.setup = () => {
-    p5.frameRate(60);
+    p5.frameRate(v.fps);
     v.canvas = p5.createCanvas(v.width, v.height);
     v.videoCapture = p5.createCapture(p5.VIDEO);
 
@@ -39,8 +32,10 @@ const script = function (p5) {
   };
   p5.draw = () => {
     WithOpenCV.run((cv) => {
-      v.capture.read(v.src);
-      cv.imshow(v.canvas.elt, v.src);
+      if (v.src) {
+        v?.capture?.read(v.src);
+        cv.imshow(v.canvas.elt, v.src);
+      }
     });
   };
 };

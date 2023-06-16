@@ -83,7 +83,7 @@ export class WithOpenCV {
 /**
  * @template U
  * @param {U} object
- * @returns {U & log:(param:string)=>void}
+ * @returns {U}
  */
 export function factoryProxy(object) {
   const _keys = [];

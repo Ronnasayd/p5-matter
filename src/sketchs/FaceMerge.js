@@ -11,13 +11,9 @@ import "../common/p5.ext";
 const v = factoryProxy({
   alpha: 0.5,
   canvas: new p5.Element("canvas"),
-  /**
-   * @type {opencv['Mat'][]}
-   */
+  /** @type {opencv['Mat'][]}*/
   cvImgs: [],
-  /**
-   * @type {p5.Element[]}
-   */
+  /** @type {p5.Element[]} */
   imgs: [],
   points: [],
   delaunay: [],
@@ -32,10 +28,10 @@ const v = factoryProxy({
     317, 14, 87,
   ],
   /**
-   *
    * @param {Delaunay} delaunay
    * @returns
-   */ getTriangles: function (delaunay) {
+   */
+  getTriangles: function (delaunay) {
     const triangles = [];
     for (let index = 0; index < delaunay.triangles.length; index = index + 3) {
       const t0 = delaunay.triangles[index];

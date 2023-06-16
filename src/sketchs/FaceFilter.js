@@ -19,26 +19,14 @@ const v = factoryProxy({
   glassPointsRef: {},
   facePointsRef: {},
   delaunay: {},
-  /**
-   * @type {MapPoints}
-   */
-  // @ts-ignore
-  mapPointsFilter: {},
-  /**
-   * @type {MapPoints}
-   */
-  // @ts-ignore
-  mapPointsFace: {},
-  /**
-   * @type {opencv['Mat']}
-   */
-  // @ts-ignore
-  srcImgCV: {},
-  /**
-   * @type {opencv['Mat']}
-   */
-  // @ts-ignore
-  filterImgCV: {},
+  /** @type {MapPoints|null}*/
+  mapPointsFilter: null,
+  /** @type {MapPoints|null} */
+  mapPointsFace: null,
+  /** @type {opencv['Mat']|null}*/
+  srcImgCV: null,
+  /** @type {opencv['Mat']|null}*/
+  filterImgCV: null,
 });
 
 /**
