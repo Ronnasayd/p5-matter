@@ -83,16 +83,14 @@ export class WithOpenCV {
 /**
  * @template U
  * @param {U} object
- * @returns {U}
+ * @returns {U & log:(param:string)=>void}
  */
 export function factoryProxy(object) {
   const _keys = [];
-  object.log = (key) => {
-    _keys.push(key);
-  };
+
   const handler = {
     get(target, key) {
-      return target[key];
+      return Reflect.get(target, key);
     },
     set(target, key, value) {
       if (_keys.includes(key)) {
@@ -102,8 +100,14 @@ export function factoryProxy(object) {
           console.log(`[${key}]:${value}`);
         }
       }
+      if (typeof value === "object")
+        return Reflect.set(target, key, new Proxy(value, handler));
+
       return Reflect.set(target, key, value);
     },
+  };
+  object.log = (key) => {
+    _keys.push(key);
   };
   return new Proxy(object, handler);
 }
