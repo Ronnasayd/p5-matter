@@ -18,15 +18,12 @@ const v = factoryProxy({
   canvas: new p5.Element("canvas"),
   glassPointsRef: {},
   facePointsRef: {},
+  refIndexes: [162, 389, 454, 234],
   delaunay: {},
-  /** @type {MapPoints|null}*/
-  mapPointsFilter: null,
-  /** @type {MapPoints|null} */
-  mapPointsFace: null,
-  /** @type {opencv['Mat']|null}*/
-  srcImgCV: null,
-  /** @type {opencv['Mat']|null}*/
-  filterImgCV: null,
+  /** @type {MapPoints|null}*/ mapPointsFilter: null,
+  /** @type {MapPoints|null} */ mapPointsFace: null,
+  /** @type {opencv['Mat']|null}*/ srcImgCV: null,
+  /** @type {opencv['Mat']|null}*/ filterImgCV: null,
 });
 
 /**
@@ -34,19 +31,20 @@ const v = factoryProxy({
  */
 const script = function (p5) {
   p5.setup = async () => {
-    v.canvas = p5.createCanvas(v.width, v.height);
+    p5.background(0);
     await FaceLandmarkDetection.init("IMAGE");
 
     WithOpenCV.setup(async (cv) => {
       v.glassPointsRef = await getPointsBySVG("/filters/oculos_ref.svg");
       v.mapPointsFilter = new MapPoints().build(v.glassPointsRef);
       v.imgRef = await p5.createImgPromise(
-        "https://i0.wp.com/news.biharprabha.com/wp-content/uploads/2012/04/smiling_girl.jpg?ssl=1",
+        "https://img.freepik.com/premium-photo/beautiful-face-young-adult-woman-with-clean-fresh-skin_78203-1897.jpg",
         "img",
         "anonymous"
       );
       v.srcImgCV = cv.imread(v.imgRef.elt);
-      v.imgRef.addClass("h-[500px] w-[500px]");
+      (v.width = v.imgRef.width), (v.height = v.imgRef.height);
+      v.canvas = p5.createCanvas(v.width, v.height);
 
       // @ts-ignore
       v.facePointsRef = (
@@ -63,107 +61,57 @@ const script = function (p5) {
         "anonymous"
       );
       v.filterImgCV = cv.imread(v.imgFilter.elt);
+
       cv.cvtColor(v.filterImgCV, v.filterImgCV, cv.COLOR_RGB2RGBA);
       cv.cvtColor(v.srcImgCV, v.srcImgCV, cv.COLOR_RGB2RGBA);
 
       v.imgRef.hide();
       v.imgFilter.hide();
-      for (const triangle of v.mapPointsFilter.getTriangles()) {
-        const [p1x1, p1y1, p1x2, p1y2, p1x3, p1y3] = triangle;
-        const indexes = v.mapPointsFilter.getIndexesByTriangle(triangle);
-        const [p2x1, p2y1, p2x2, p2y2, p2x3, p2y3] =
-          v.mapPointsFace.getTriangleByIndexes(indexes);
-        const t1 = cv.matFromArray(3, 1, cv.CV_32FC2, [
-          p1x1,
-          p1y1,
-          p1x2,
-          p1y2,
-          p1x3,
-          p1y3,
-        ]);
 
-        const t2 = cv.matFromArray(3, 1, cv.CV_32FC2, [
-          p2x1,
-          p2y1,
-          p2x2,
-          p2y2,
-          p2x3,
-          p2y3,
-        ]);
+      const p1 = cv.matFromArray(
+        4,
+        1,
+        cv.CV_32FC2,
+        v.refIndexes
+          .map((index) => v.mapPointsFace?.getPointByIndex(index))
+          .flat()
+      );
+      const p2 = cv.matFromArray(
+        4,
+        1,
+        cv.CV_32FC2,
+        [
+          [0, 0],
+          [v.filterImgCV.cols - 1, 0],
+          [v.filterImgCV.cols - 1, v.filterImgCV.rows - 1],
+          [0, v.filterImgCV.rows - 1],
+        ].flat()
+      );
 
-        const r1 = cv.boundingRect(t1);
-        const r2 = cv.boundingRect(t2);
+      const r1 = cv.boundingRect(p1);
+      const rect1 = new cv.Rect(r1.x, r1.y, r1.width, r1.height);
+      const roi1 = v.srcImgCV.roi(rect1);
+      const trans = cv.getPerspectiveTransform(p2, p1, cv.DECOMP_LU);
+      const dst = new cv.Mat();
 
-        const mask = new cv.Mat.zeros(
-          new cv.Size(r2.width, r2.height),
-          cv.CV_8UC1
-        );
+      cv.warpPerspective(v.filterImgCV, dst, trans, v.srcImgCV.size());
 
-        const t1Rect = cv.matFromArray(3, 1, cv.CV_32FC2, [
-          p1x1 - r1.x,
-          p1y1 - r1.y,
-          p1x2 - r1.x,
-          p1y2 - r1.y,
-          p1x3 - r1.x,
-          p1y3 - r1.y,
-        ]);
-        const t2Rect = cv.matFromArray(3, 1, cv.CV_32FC2, [
-          p2x1 - r2.x,
-          p2y1 - r2.y,
-          p2x2 - r2.x,
-          p2y2 - r2.y,
-          p2x3 - r2.x,
-          p2y3 - r2.y,
-        ]);
+      const mask = new cv.Mat.zeros(v.srcImgCV.size(), cv.CV_8UC1);
+      const t2RectInt = cv.matFromArray(4, 1, cv.CV_32SC2, [...p1.data32F]);
+      // @ts-ignore
+      cv.fillConvexPoly(mask, t2RectInt, new cv.Scalar(255));
+      const dst2 = new cv.Mat();
+      const dst3 = new cv.Mat();
+      const dst4 = new cv.Mat();
 
-        const t2RectInt = cv.matFromArray(3, 1, cv.CV_32SC2, [
-          p2x1 - r2.x,
-          p2y1 - r2.y,
-          p2x2 - r2.x,
-          p2y2 - r2.y,
-          p2x3 - r2.x,
-          p2y3 - r2.y,
-        ]);
+      const inverseMask = new cv.Mat();
+      cv.bitwise_not(mask, inverseMask);
+      cv.bitwise_or(dst, dst, dst2, mask);
+      cv.bitwise_and(v.srcImgCV, v.srcImgCV, dst3, inverseMask);
+      cv.bitwise_or(dst3, dst2, dst4);
 
-        // @ts-ignore
-        cv.fillConvexPoly(mask, t2RectInt, new cv.Scalar(255), cv.LINE_8, 0);
-        const inverseMask = new cv.Mat();
-        cv.bitwise_not(mask, inverseMask);
-
-        const rect1 = new cv.Rect(r1.x, r1.y, r1.width, r1.height);
-        const rect2 = new cv.Rect(r2.x, r2.y, r2.width, r2.height);
-
-        const roi1 = v.filterImgCV.roi(rect1);
-        const roi2 = v.srcImgCV.roi(rect2);
-
-        const size = new cv.Size(r2.width, r2.height);
-
-        const transform = cv.getAffineTransform(t1Rect, t2Rect);
-
-        const dst = new cv.Mat();
-
-        cv.warpAffine(
-          roi1,
-          dst,
-          transform,
-          size,
-          cv.INTER_LINEAR,
-          cv.BORDER_REFLECT_101
-        );
-        const dst2 = new cv.Mat();
-        const dst3 = new cv.Mat();
-        const dst4 = new cv.Mat();
-
-        cv.bitwise_and(dst, dst, dst2, mask);
-        cv.bitwise_and(roi2, roi2, dst3, inverseMask);
-
-        cv.bitwise_or(dst2, dst3, dst4);
-
-        dst4.copyTo(roi2);
-      }
-      cv.imshow(v.canvas.elt, v.srcImgCV);
+      cv.imshow(v.canvas.elt, dst4);
     });
-    // p5.noLoop();
   };
   p5.draw = () => {
     WithOpenCV.run((cv) => {});
