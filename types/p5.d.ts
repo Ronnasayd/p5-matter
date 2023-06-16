@@ -11,8 +11,8 @@ declare module "p5" {
     readonly VIDEO: "video";
     createImgPromise(
       src: string,
-      alt: string,
-      crossOrigin: string
+      alt: string = "default",
+      crossOrigin: string = "anonymous"
     ): Promise<Element>;
   }
 }

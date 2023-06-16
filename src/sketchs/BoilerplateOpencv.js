@@ -1,9 +1,11 @@
 //@ts-check
+/// <reference path="../../types/p5.d.ts" />
+
 import p5 from "p5";
 import { WithOpenCV, factoryProxy } from "../common";
-/**
- * @typedef {import('opencv-ts').default} opencv
- */
+import "../common/p5.ext";
+
+/** @typedef {import('opencv-ts').default} opencv */
 
 const v = factoryProxy({
   width: 500,
