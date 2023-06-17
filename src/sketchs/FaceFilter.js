@@ -20,8 +20,8 @@ const v = factoryProxy({
   facePointsRef: {},
   refIndexes: [162, 389, 454, 234],
   delaunay: {},
-  /** @type {MapPoints|null}*/ mapPointsFilter: null,
-  /** @type {MapPoints|null} */ mapPointsFace: null,
+  /** @type {?MapPoints}*/ mapPointsFilter: null,
+  /** @type {?MapPoints} */ mapPointsFace: null,
   /** @type {?opencv['Mat']}*/ srcImgCV: null,
   /** @type {?opencv['Mat']}*/ filterImgCV: null,
 });
@@ -96,10 +96,11 @@ const script = function (p5) {
 
       cv.warpPerspective(v.filterImgCV, dst, trans, v.srcImgCV.size());
 
-      const mask = new cv.Mat.zeros(v.srcImgCV.size(), cv.CV_8UC1);
-      const t2RectInt = cv.matFromArray(4, 1, cv.CV_32SC2, [...p1.data32F]);
-      // @ts-ignore
-      cv.fillConvexPoly(mask, t2RectInt, new cv.Scalar(255));
+      const channels = new cv.MatVector();
+      cv.split(dst, channels);
+
+      const mask = channels.get(3);
+
       const dst2 = new cv.Mat();
       const dst3 = new cv.Mat();
       const dst4 = new cv.Mat();
@@ -108,10 +109,11 @@ const script = function (p5) {
       cv.bitwise_not(mask, inverseMask);
       cv.bitwise_or(dst, dst, dst2, mask);
       cv.bitwise_and(v.srcImgCV, v.srcImgCV, dst3, inverseMask);
-      cv.bitwise_or(dst3, dst2, dst4);
+      cv.bitwise_or(dst2, dst3, dst4);
 
       cv.imshow(v.canvas.elt, dst4);
     });
+    p5.noLoop();
   };
   p5.draw = () => {
     WithOpenCV.run((cv) => {});
