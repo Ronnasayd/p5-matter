@@ -2,9 +2,16 @@
 /// <reference path="../../types/p5.d.ts" />
 
 import p5 from "p5";
-import { MapPoints, WithOpenCV, factoryProxy, getPointsBySVG } from "../common";
+import {
+  KEYPOINTS_68,
+  MapPoints,
+  WithOpenCV,
+  factoryProxy,
+  getPointsBySVG,
+} from "../common";
 import { FaceLandmarkDetection } from "../common/MediaPipeCommon";
 import "../common/p5.ext";
+
 /**
  * @typedef {import('opencv-ts').default} opencv
  */
@@ -19,6 +26,7 @@ const v = factoryProxy({
   glassPointsRef: {},
   facePointsRef: {},
   refIndexes: [162, 389, 454, 234],
+  refIn: [23, 55, 34],
   delaunay: {},
   /** @type {?MapPoints}*/ mapPointsFilter: null,
   /** @type {?MapPoints} */ mapPointsFace: null,
@@ -38,9 +46,7 @@ const script = function (p5) {
       v.glassPointsRef = await getPointsBySVG("/filters/oculos_ref.svg");
       v.mapPointsFilter = new MapPoints().build(v.glassPointsRef);
       v.imgRef = await p5.createImgPromise(
-        "https://img.freepik.com/premium-photo/beautiful-face-young-adult-woman-with-clean-fresh-skin_78203-1897.jpg",
-        "img",
-        "anonymous"
+        "https://img.freepik.com/premium-photo/beautiful-face-young-adult-woman-with-clean-fresh-skin_78203-1897.jpg"
       );
       v.srcImgCV = cv.imread(v.imgRef.elt);
       (v.width = v.imgRef.width), (v.height = v.imgRef.height);
@@ -68,30 +74,65 @@ const script = function (p5) {
       v.imgRef.hide();
       v.imgFilter.hide();
 
-      const p1 = cv.matFromArray(
-        4,
+      let eyes = v.mapPointsFace.getPointsByIndexes([
+        ...KEYPOINTS_68.LeftEye,
+        ...KEYPOINTS_68.RightEye,
+      ]);
+      let contour = v.mapPointsFace.getPointsByIndexes([
+        ...KEYPOINTS_68.Contour,
+      ]);
+
+      let eyePoints = cv.matFromArray(eyes.length, 1, cv.CV_32SC2, eyes.flat());
+      let contourPoints = cv.matFromArray(
+        contour.length,
+        1,
+        cv.CV_32SC2,
+        contour.flat()
+      );
+      let eyeRect = cv.minAreaRect(eyePoints);
+      let contourRect = cv.minAreaRect(contourPoints);
+      if (eyeRect.size.height > eyeRect.size.width) {
+        let h = eyeRect.size.height;
+        eyeRect.size.height = eyeRect.size.width;
+        eyeRect.size.width = h;
+        eyeRect.angle += 90;
+      }
+      eyeRect.size.width = contourRect.size.width;
+      eyeRect.size.height =
+        (contourRect.size.width * v.filterImgCV.rows) / v.filterImgCV.cols;
+
+      let filterPoints = cv
+        .rotatedRectPoints(eyeRect)
+        .map((p) => [p.x, p.y])
+        .sort((a, b) => a[0] - b[0] + a[1] - b[1]);
+
+      let filterPointsMat = cv.matFromArray(
+        filterPoints.length,
         1,
         cv.CV_32FC2,
-        v.refIndexes
-          .map((index) => v.mapPointsFace?.getPointByIndex(index))
-          .flat()
+        filterPoints.flat()
       );
+
       const p2 = cv.matFromArray(
         4,
         1,
         cv.CV_32FC2,
         [
           [0, 0],
-          [v.filterImgCV.cols - 1, 0],
-          [v.filterImgCV.cols - 1, v.filterImgCV.rows - 1],
           [0, v.filterImgCV.rows - 1],
-        ].flat()
+          [v.filterImgCV.cols - 1, v.filterImgCV.rows - 1],
+          [v.filterImgCV.cols - 1, 0],
+        ]
+          .sort((a, b) => a[0] - b[0] + a[1] - b[1])
+          .flat()
       );
 
-      const r1 = cv.boundingRect(p1);
-      const rect1 = new cv.Rect(r1.x, r1.y, r1.width, r1.height);
-      const roi1 = v.srcImgCV.roi(rect1);
-      const trans = cv.getPerspectiveTransform(p2, p1, cv.DECOMP_LU);
+      const trans = cv.getPerspectiveTransform(
+        p2,
+        filterPointsMat,
+        cv.DECOMP_LU
+      );
+
       const dst = new cv.Mat();
 
       cv.warpPerspective(v.filterImgCV, dst, trans, v.srcImgCV.size());

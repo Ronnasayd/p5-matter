@@ -112,15 +112,11 @@ const script = function (p5) {
     WithOpenCV.setup(async (cv) => {
       let img;
       img = await p5.createImgPromise(
-        "https://img.freepik.com/premium-photo/beautiful-face-young-adult-woman-with-clean-fresh-skin_78203-1897.jpg",
-        "img2",
-        "Anonymous"
+        "https://img.freepik.com/premium-photo/beautiful-face-young-adult-woman-with-clean-fresh-skin_78203-1897.jpg"
       );
       processImage(0, img, cv);
       img = await p5.createImgPromise(
-        "https://img.freepik.com/fotos-gratis/retrato-da-vista-frontal-de-um-rosto-de-mulher-jovem-e-bela_186202-460.jpg?w=2000",
-        "img1",
-        "Anonymous"
+        "https://img.freepik.com/fotos-gratis/retrato-da-vista-frontal-de-um-rosto-de-mulher-jovem-e-bela_186202-460.jpg?w=2000"
       );
       processImage(1, img, cv);
       for (const delaunay of v.delaunay) {

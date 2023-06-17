@@ -1,6 +1,8 @@
 import { Delaunay } from "d3-delaunay";
 import Matter from "matter-js";
 import p5 from "p5";
+import "../common/p5.ext";
+
 /**
  * @typedef {import('opencv-ts').default} opencv
  */
@@ -65,7 +67,7 @@ export class WithOpenCV {
     return new Promise((resolve) => {
       console.log("inserting opencv ...");
       let script = window.document.createElement("script");
-      script.src = "opencv.js";
+      script.src = "opencv4.7.0.js";
       script.onload = () => {
         cv["onRuntimeInitialized"] = () => {
           if (typeof cv !== "undefined") {
@@ -185,19 +187,23 @@ export class MapPoints {
   getIndexByPoint(x, y) {
     return this._mapPoints[`${x}:${y}`];
   }
-
-  getTriangleByIndexes(indexes) {
-    const triangle = [];
+  /**
+   *
+   * @param {number[]} indexes
+   * @returns {number[][]}
+   */
+  getPointsByIndexes(indexes) {
+    const points = [];
     for (const index of indexes) {
-      triangle.push(...this._mapKeys[index]);
+      points.push(this._mapKeys[index]);
     }
-    return triangle;
+    return points;
   }
-  getIndexesByTriangle(triangle) {
+  getIndexesByPoints(points) {
     const indexes = [];
-    for (let index = 0; index < triangle.length; index = index + 2) {
-      const px = triangle[index];
-      const py = triangle[index + 1];
+    for (let index = 0; index < points.length; index = index + 2) {
+      const px = points[index];
+      const py = points[index + 1];
 
       indexes.push(this._mapPoints[`${px}:${py}`]);
     }

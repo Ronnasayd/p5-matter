@@ -2,7 +2,13 @@
 /// <reference path="../../types/p5.d.ts" />
 
 import p5 from "p5";
-import { MapPoints, WithOpenCV, factoryProxy, getPointsBySVG } from "../common";
+import {
+  KEYPOINTS_68,
+  MapPoints,
+  WithOpenCV,
+  factoryProxy,
+  getPointsBySVG,
+} from "../common";
 import { FaceLandmarkDetection } from "../common/MediaPipeCommon";
 import "../common/p5.ext";
 
@@ -11,13 +17,13 @@ const v = factoryProxy(
   {
     width: 450,
     height: 450,
-    fps: 24,
+    fps: 60,
     refIndexes: [162, 389, 454, 234],
     glassPointsRef: [],
     /**@type {?MapPoints}*/ mapPointsFilter: null,
     /**@type {?MapPoints}*/ mapPointsFace: null,
     /** @type {?opencv['Mat']} */ src: null,
-    /** @type {?opencv['Mat']} */ filterImgCV: null,
+    /** @type {?opencv['Mat']} */ filter: null,
     /** @type {?opencv['VideoCapture']} */ capture: null,
     canvas: new p5.Element("canvas"),
     videoCapture: new p5.Element("video"),
@@ -31,6 +37,8 @@ const v = factoryProxy(
 const script = function (p5) {
   let p1, p2, r1, rect1, trans, dst;
   let channels, mask, dst2, dst3, dst4, inverseMask;
+  let eyes, contour, filterPoints, h;
+  let eyePoints, contourPoints, eyeRect, contourRect;
 
   p5.setup = async () => {
     p5.frameRate(v.fps);
@@ -48,7 +56,7 @@ const script = function (p5) {
         "anonymous"
       );
       v.imgFilter.hide();
-      v.filterImgCV = cv.imread(v.imgFilter.elt);
+      v.filter = cv.imread(v.imgFilter.elt);
 
       v.videoCapture.size(v.width, v.height);
       v.videoCapture.hide();
@@ -64,7 +72,7 @@ const script = function (p5) {
     // @ts-ignore
     p5.clear();
     WithOpenCV.run(async (cv) => {
-      if (v.src && v.filterImgCV) {
+      if (v.src && v.filter) {
         v?.capture?.read(v.src);
         //@ts-ignore
         v.facePointsRef = (
@@ -85,24 +93,57 @@ const script = function (p5) {
 
           inverseMask = new cv.Mat();
           v.mapPointsFace = new MapPoints().build(v.facePointsRef);
+          eyes = v.mapPointsFace.getPointsByIndexes([
+            ...KEYPOINTS_68.LeftEye,
+            ...KEYPOINTS_68.RightEye,
+          ]);
+          contour = v.mapPointsFace.getPointsByIndexes([
+            ...KEYPOINTS_68.Contour,
+          ]);
+
+          eyePoints = cv.matFromArray(eyes.length, 1, cv.CV_32SC2, eyes.flat());
+          contourPoints = cv.matFromArray(
+            contour.length,
+            1,
+            cv.CV_32SC2,
+            contour.flat()
+          );
+          eyeRect = cv.minAreaRect(eyePoints);
+          contourRect = cv.minAreaRect(contourPoints);
+          if (eyeRect.size.height > eyeRect.size.width) {
+            h = eyeRect.size.height;
+            eyeRect.size.height = eyeRect.size.width;
+            eyeRect.size.width = h;
+            eyeRect.angle += 90;
+          }
+          eyeRect.size.width = contourRect.size.width;
+          eyeRect.size.height =
+            (contourRect.size.width * v.filter.rows) / v.filter.cols;
+
+          filterPoints = cv
+            .rotatedRectPoints(eyeRect)
+            .map((p) => [p.x, p.y])
+            .sort((a, b) => a[0] - b[0] + (a[1] - b[1]));
+
           p1 = cv.matFromArray(
-            4,
+            filterPoints.length,
             1,
             cv.CV_32FC2,
-            v.refIndexes
-              .map((index) => v.mapPointsFace?.getPointByIndex(index))
-              .flat()
+            filterPoints.flat()
           );
+
           p2 = cv.matFromArray(
             4,
             1,
             cv.CV_32FC2,
             [
               [0, 0],
-              [v.filterImgCV.cols - 1, 0],
-              [v.filterImgCV.cols - 1, v.filterImgCV.rows - 1],
-              [0, v.filterImgCV.rows - 1],
-            ].flat()
+              [v.filter.cols - 1, 0],
+              [v.filter.cols - 1, v.filter.rows - 1],
+              [0, v.filter.rows - 1],
+            ]
+              .sort((a, b) => a[0] - b[0] + (a[1] - b[1]))
+              .flat()
           );
 
           r1 = cv.boundingRect(p1);
@@ -110,7 +151,7 @@ const script = function (p5) {
           trans = cv.getPerspectiveTransform(p2, p1, cv.DECOMP_LU);
           dst = new cv.Mat();
 
-          cv.warpPerspective(v.filterImgCV, dst, trans, v.src.size());
+          cv.warpPerspective(v.filter, dst, trans, v.src.size());
 
           cv.split(dst, channels);
 
@@ -120,6 +161,7 @@ const script = function (p5) {
           cv.bitwise_or(dst, dst, dst2, mask);
           cv.bitwise_and(v.src, v.src, dst3, inverseMask);
           cv.bitwise_or(dst2, dst3, dst4);
+
           cv.imshow(v.canvas.elt, dst4);
 
           mask.delete();
@@ -129,6 +171,8 @@ const script = function (p5) {
           dst2.delete();
           dst3.delete();
           dst4.delete();
+          eyePoints.delete();
+          contourPoints.delete();
         }
       }
     });
