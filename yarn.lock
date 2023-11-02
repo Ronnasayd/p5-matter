@@ -211,6 +211,18 @@
   resolved "https://registry.yarnpkg.com/@types/matter-js/-/matter-js-0.18.3.tgz#dbe8103666cf055f77831703584d43e9ea5aee90"
   integrity sha512-7DYI52ebEl6AD9+RV2jO/XHdlFlpozYbkURtYKKJ2tO34q49Y15cfl+JSJpoMglQCAL/PxBSHKVv3wkvfZZD7g==
 
+"@types/ndarray@*":
+  version "1.0.13"
+  resolved "https://registry.yarnpkg.com/@types/ndarray/-/ndarray-1.0.13.tgz#f1a7734397bda02cd3f04d9bb59a70314290015e"
+  integrity sha512-r0Sz7Veorh5Y/QZ444HXq/rQCkCbxEgDEJAVIFs6POI+CUhoH+FDPlGxI6KSK7WRQau30daaQ5Bzh7V16S5E+w==
+
+"@types/numjs@^0.16.6":
+  version "0.16.6"
+  resolved "https://registry.yarnpkg.com/@types/numjs/-/numjs-0.16.6.tgz#2aae3ccef1db58989e9bb2dcce5087bd5a249f9a"
+  integrity sha512-3inoPaBWqXytZ+zeUrruAeZuKSeaXWq3LpB2YlOhuyGBguERecFST1mFdQSEVqCsBhCeSJZd2YRBHU5gaA05HQ==
+  dependencies:
+    "@types/ndarray" "*"
+
 "@types/p5@^1.6.2":
   version "1.6.2"
   resolved "https://registry.yarnpkg.com/@types/p5/-/p5-1.6.2.tgz#05b64a2375f7ddd35d7fac63e983358b418605e7"
