@@ -1213,10 +1213,10 @@ p-map@^4.0.0:
   dependencies:
     aggregate-error "^3.0.0"
 
-p5@^1.6.0:
-  version "1.6.0"
-  resolved "https://registry.yarnpkg.com/p5/-/p5-1.6.0.tgz#eaf4e69e377d6a5e91041ca485743b0fc53d9dfb"
-  integrity sha512-RowF+RxfVUhJm/YKXL5TCFzTqnwAIwK6W1VGs9LAqSf3PCmLz9Igbxzlf0Ry5IMV71L42wipCdH/bDiNsqAstA==
+p5@^1.8.0:
+  version "1.8.0"
+  resolved "https://registry.yarnpkg.com/p5/-/p5-1.8.0.tgz#91a720357a4377d85405f29cdd276cf1fa4eb45c"
+  integrity sha512-LHzRRl+aWEZVXmK+L9TDRNw5zm90wvwMdY7yTmsFkdNeXrU9n2KSZbonCTXkyGgriguovxJrDDgyhkynOxWB1A==
 
 path-is-absolute@^1.0.0:
   version "1.0.1"
