@@ -9,7 +9,7 @@ import "../common/p5.ext";
  */
 
 const v = factoryProxy({
-  alpha: 0.5,
+  alpha: 0.6,
   canvas: new p5.Element("canvas"),
   /** @type {opencv['Mat'][]}*/
   cvImgs: [],
@@ -112,12 +112,13 @@ const script = function (p5) {
     WithOpenCV.setup(async (cv) => {
       let img;
       img = await p5.createImgPromise(
-        "https://img.freepik.com/premium-photo/beautiful-face-young-adult-woman-with-clean-fresh-skin_78203-1897.jpg"
+        "https://t4.ftcdn.net/jpg/00/76/27/53/360_F_76275384_mRNrmAI89UPWoWeUJfCL9CptRxg3cEoF.jpg"
       );
       processImage(0, img, cv);
       img = await p5.createImgPromise(
-        "https://img.freepik.com/fotos-gratis/retrato-da-vista-frontal-de-um-rosto-de-mulher-jovem-e-bela_186202-460.jpg?w=2000"
+        "https://st2.depositphotos.com/1005833/10500/i/950/depositphotos_105005392-stock-photo-beautiful-woman-face.jpg"
       );
+
       processImage(1, img, cv);
       for (const delaunay of v.delaunay) {
         v.triangles.push(v.getTriangles(delaunay));
