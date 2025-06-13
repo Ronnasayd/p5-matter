@@ -6,17 +6,25 @@
   <link rel="icon" type="image/svg+xml" href="/vite.svg" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <link rel="stylesheet" href="src/css/index.css" />
+  <link rel="stylesheet" type="text/css" href="/css/litegraph.css">
+  <script type="text/javascript" src="/js/litegraph.js"></script>
   <title>Vite + Vue</title>
 </head>
 
 <body>
-  <div id="app"></div>
-  <script src="https://cdn.jsdelivr.net/gh/nicolaspanel/numjs@0.15.1/dist/numjs.min.js"></script>
+  <div class="flex flex-row">
 
+    <div id="app"></div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/gh/nicolaspanel/numjs@0.15.1/dist/numjs.min.js"></script>
   <script type="module" src="/src/main.js"></script>
   <script>
     javascript: (function () { var script = document.createElement('script'); script.onload = function () { var stats = new Stats(); document.body.appendChild(stats.dom); requestAnimationFrame(function loop() { stats.update(); requestAnimationFrame(loop) }); }; script.src = 'https://mrdoob.github.io/stats.js/build/stats.min.js'; document.head.appendChild(script); })()
   </script>
+  <main id="main" class="flex w-full">
+    <canvas id='mycanvas' style='border: 1px solid' width="512" height="500"></canvas>
+  </main>
 </body>
 
 </html>

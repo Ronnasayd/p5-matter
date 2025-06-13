@@ -1,15 +1,17 @@
 import p5 from "p5";
+import data from "../json/graph.json";
 const particles = [];
-const startRGB = [255, 0, 100];
-const endRGB = [200, 200, 255];
-
-let image, pixels;
+const START_RGB = [255, 0, 100];
+const END_RGB = [200, 200, 255];
+const NODE_ID = 17;
+let image;
+let lastImageRef = "";
 /**
  * @param {p5} p5
  */
 const script = function (p5) {
   p5.preload = () => {
-    image = p5.loadImage("assets/particles/spark_01.png");
+    image = p5.loadImage("assets/particles/muzzle_03.png");
   };
   p5.setup = () => {
     p5.frameRate(20);
@@ -18,8 +20,15 @@ const script = function (p5) {
     p5.angleMode(p5.DEGREES);
   };
   p5.draw = () => {
-    p5.background(50);
-    for (let i = 0; i < 2; i++) {
+    p5.background(27);
+    GRAPH.runStep();
+    const { numberOfParticles, imageRef } =
+      GRAPH._nodes_by_id[NODE_ID].getOutputData(0);
+    if (imageRef != lastImageRef) {
+      image = p5.loadImage(`assets/particles/${imageRef}.png`);
+    }
+    lastImageRef = imageRef;
+    for (let i = 0; i < numberOfParticles; i++) {
       let imgCopy = p5.createImage(image.width, image.height);
       imgCopy.copy(
         image,
@@ -52,16 +61,19 @@ class Particle {
    * @param {p5} p5
    */
   constructor(p5, image) {
-    this.width = 50;
-    this.height = 50;
-    this.y = 256;
-    this.x = 256 - this.width;
-    this.rotate = p5.random(-45, 45);
-    this.vx = p5.random(-1, 1);
-    this.vy = p5.random(-8, -1);
     this.alpha = 255;
     this.image = image;
     this.p5 = p5;
+    GRAPH.runStep();
+    const { velocityX, velocityY, rotateDegress, size } =
+      GRAPH._nodes_by_id[NODE_ID].getOutputData(0);
+    this.vx = p5.random(-velocityX, velocityX);
+    this.vy = p5.random(-velocityY, -1);
+    this.rotate = p5.random(-rotateDegress, rotateDegress);
+    this.width = parseInt(size);
+    this.height = parseInt(size);
+    this.y = 256;
+    this.x = 256 - this.width / 2;
   }
 
   finished() {
@@ -88,19 +100,51 @@ class Particle {
     this.image.loadPixels();
     for (let index = 0; index < this.image.pixels.length; index += 4) {
       this.image.pixels[index] =
-        startRGB[0] * (this.alpha / 255) + endRGB[0] * (1 - this.alpha / 255);
+        START_RGB[0] * (this.alpha / 255) + END_RGB[0] * (1 - this.alpha / 255);
       this.image.pixels[index + 1] =
-        startRGB[1] * (this.alpha / 255) + endRGB[1] * (1 - this.alpha / 255);
+        START_RGB[1] * (this.alpha / 255) + END_RGB[1] * (1 - this.alpha / 255);
       this.image.pixels[index + 2] =
-        startRGB[2] * (this.alpha / 255) + endRGB[2] * (1 - this.alpha / 255);
+        START_RGB[2] * (this.alpha / 255) + END_RGB[2] * (1 - this.alpha / 255);
       this.image.pixels[index + 3] = Math.min(
         this.alpha,
         this.image.pixels[index + 3]
       );
     }
     this.image.updatePixels();
-
     p5.image(this.image, 0, 0, this.width, this.height);
     p5.pop();
   }
 }
+// Create the graph and canvas
+var graph = new LGraph();
+new LGraphCanvas("#mycanvas", graph);
+
+// Define the sum function and wrap it as a node
+function particleFactory(
+  velocityX,
+  velocityY,
+  numberOfParticles,
+  rotateDegress,
+  size,
+  imageRef
+) {
+  return {
+    velocityX,
+    velocityY,
+    numberOfParticles,
+    rotateDegress,
+    size,
+    imageRef,
+  };
+}
+
+LiteGraph.wrapFunctionAsNode(
+  "mynodes/particleFactory",
+  particleFactory,
+  ["Number", "Number", "Number", "Number", "Number", "String"],
+  "Object"
+);
+
+graph.configure(data);
+window.GRAPH = graph;
+graph.runStep();
