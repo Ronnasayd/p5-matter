@@ -3,7 +3,7 @@ import data from "../json/graph.json";
 const particles = [];
 const START_RGB = [255, 0, 100];
 const END_RGB = [200, 200, 255];
-const NODE_ID = 17;
+const NODE_ID = 22;
 let image;
 let lastImageRef = "";
 /**
@@ -15,6 +15,7 @@ const script = function (p5) {
   };
   p5.setup = () => {
     p5.frameRate(20);
+
     p5.createCanvas(512, 512);
     p5.imageMode(p5.CENTER);
     p5.angleMode(p5.DEGREES);
@@ -42,12 +43,14 @@ const script = function (p5) {
         image.height
       );
       let p = new Particle(p5, imgCopy);
-      particles.push(p);
+      if (particles.length < 60 * numberOfParticles) {
+        particles.push(p);
+      }
     }
     for (let i = particles.length - 1; i >= 0; i--) {
-      particles[i].update();
+      particles[i].update(p5);
       particles[i].show(p5);
-      if (particles[i].finished()) {
+      if (particles[i].finished(p5)) {
         particles.splice(i, 1);
       }
     }
@@ -65,25 +68,31 @@ class Particle {
     this.image = image;
     this.p5 = p5;
     GRAPH.runStep();
-    const { velocityX, velocityY, rotateDegress, size } =
+    const { velocityX, velocityY, rotateDegress, size, lifeTime } =
       GRAPH._nodes_by_id[NODE_ID].getOutputData(0);
     this.vx = p5.random(-velocityX, velocityX);
     this.vy = p5.random(-velocityY, -1);
     this.rotate = p5.random(-rotateDegress, rotateDegress);
-    this.width = parseInt(size);
-    this.height = parseInt(size);
+    this.width = parseInt(p5.random(size / 4, size));
+    this.height = parseInt(p5.random(size / 4, size));
     this.y = 256;
     this.x = 256 - this.width / 2;
+    this.lifeTime = parseInt(255 / lifeTime);
   }
 
-  finished() {
+  finished(p5) {
     return this.alpha < 0;
   }
-
+  /**
+   *
+   * @param {p5} p5
+   */
   update(p5) {
     this.x += this.vx;
     this.y += this.vy;
-    this.alpha -= 10;
+    this.alpha -= this.lifeTime;
+    this.width = (this.alpha / 255) * this.width + 10;
+    this.height = (this.alpha / 255) * this.height + 10;
   }
   /**
    *
@@ -126,7 +135,8 @@ function particleFactory(
   numberOfParticles,
   rotateDegress,
   size,
-  imageRef
+  imageRef,
+  lifeTime
 ) {
   return {
     velocityX,
@@ -135,13 +145,14 @@ function particleFactory(
     rotateDegress,
     size,
     imageRef,
+    lifeTime,
   };
 }
 
 LiteGraph.wrapFunctionAsNode(
   "mynodes/particleFactory",
   particleFactory,
-  ["Number", "Number", "Number", "Number", "Number", "String"],
+  ["Number", "Number", "Number", "Number", "Number", "String", "Number"],
   "Object"
 );
 

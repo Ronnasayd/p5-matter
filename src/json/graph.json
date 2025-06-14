@@ -1,62 +1,7 @@
 {
-  "last_node_id": 17,
-  "last_link_id": 31,
+  "last_node_id": 22,
+  "last_link_id": 38,
   "nodes": [
-    {
-      "id": 17,
-      "type": "mynodes/particleFactory",
-      "pos": [
-        297,
-        151
-      ],
-      "size": {
-        "0": 178,
-        "1": 126
-      },
-      "flags": {},
-      "order": 6,
-      "mode": 0,
-      "inputs": [
-        {
-          "name": "velocityX",
-          "type": "Number",
-          "link": 26
-        },
-        {
-          "name": "velocityY",
-          "type": "Number",
-          "link": 27
-        },
-        {
-          "name": "numberOfParticles",
-          "type": "Number",
-          "link": 28
-        },
-        {
-          "name": "rotateDegress",
-          "type": "Number",
-          "link": 29
-        },
-        {
-          "name": "size",
-          "type": "Number",
-          "link": 30
-        },
-        {
-          "name": "imageRef",
-          "type": "String",
-          "link": 31
-        }
-      ],
-      "outputs": [
-        {
-          "name": "out",
-          "type": "Object",
-          "links": null
-        }
-      ],
-      "properties": {}
-    },
     {
       "id": 2,
       "type": "basic/const",
@@ -76,10 +21,11 @@
           "name": "value",
           "type": "number",
           "links": [
-            26
+            32
           ],
           "label": "1.000",
-          "slot_index": 0
+          "slot_index": 0,
+          "_data": 1
         }
       ],
       "title": "velocityX",
@@ -106,15 +52,16 @@
           "name": "value",
           "type": "number",
           "links": [
-            27
+            33
           ],
-          "label": "8.000",
-          "slot_index": 0
+          "label": "5.000",
+          "slot_index": 0,
+          "_data": 5
         }
       ],
       "title": "velocityY",
       "properties": {
-        "value": 8
+        "value": 5
       }
     },
     {
@@ -136,10 +83,11 @@
           "name": "value",
           "type": "number",
           "links": [
-            28
+            34
           ],
           "label": "3.000",
-          "slot_index": 0
+          "slot_index": 0,
+          "_data": 3
         }
       ],
       "title": "numberOfParticles",
@@ -152,7 +100,7 @@
       "type": "basic/const",
       "pos": [
         24,
-        316
+        318
       ],
       "size": [
         210,
@@ -166,10 +114,11 @@
           "name": "value",
           "type": "number",
           "links": [
-            29
+            35
           ],
           "label": "180.000",
-          "slot_index": 0
+          "slot_index": 0,
+          "_data": 180
         }
       ],
       "title": "rotate",
@@ -181,8 +130,8 @@
       "id": 12,
       "type": "basic/const",
       "pos": [
-        41,
-        407
+        20,
+        420
       ],
       "size": [
         210,
@@ -196,23 +145,124 @@
           "name": "value",
           "type": "number",
           "links": [
-            30
+            36
           ],
-          "label": "50.000",
-          "slot_index": 0
+          "label": "80.000",
+          "slot_index": 0,
+          "_data": 80
         }
       ],
       "title": "Size",
       "properties": {
-        "value": 50
+        "value": 80
+      }
+    },
+    {
+      "id": 22,
+      "type": "mynodes/particleFactory",
+      "pos": [
+        541,
+        100
+      ],
+      "size": {
+        "0": 178,
+        "1": 146
+      },
+      "flags": {},
+      "order": 7,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "velocityX",
+          "type": "Number",
+          "link": 32
+        },
+        {
+          "name": "velocityY",
+          "type": "Number",
+          "link": 33
+        },
+        {
+          "name": "numberOfParticles",
+          "type": "Number",
+          "link": 34
+        },
+        {
+          "name": "rotateDegress",
+          "type": "Number",
+          "link": 35
+        },
+        {
+          "name": "size",
+          "type": "Number",
+          "link": 36
+        },
+        {
+          "name": "imageRef",
+          "type": "String",
+          "link": 37
+        },
+        {
+          "name": "lifeTime",
+          "type": "Number",
+          "link": 38
+        }
+      ],
+      "outputs": [
+        {
+          "name": "out",
+          "type": "Object",
+          "links": null,
+          "_data": {
+            "velocityX": 1,
+            "velocityY": 5,
+            "numberOfParticles": 3,
+            "rotateDegress": 180,
+            "size": 80,
+            "imageRef": "circle_01",
+            "lifeTime": 25
+          }
+        }
+      ],
+      "properties": {}
+    },
+    {
+      "id": 20,
+      "type": "basic/const",
+      "pos": [
+        504,
+        427
+      ],
+      "size": [
+        180,
+        30
+      ],
+      "flags": {},
+      "order": 6,
+      "mode": 0,
+      "outputs": [
+        {
+          "name": "value",
+          "type": "number",
+          "links": [
+            38
+          ],
+          "label": "25.000",
+          "slot_index": 0,
+          "_data": 25
+        }
+      ],
+      "title": "lifeTime",
+      "properties": {
+        "value": 25
       }
     },
     {
       "id": 16,
       "type": "widget/combo",
       "pos": [
-        278,
-        427
+        257,
+        421
       ],
       "size": {
         "0": 210,
@@ -226,9 +276,10 @@
           "name": "",
           "type": "string",
           "links": [
-            31
+            37
           ],
-          "slot_index": 0
+          "slot_index": 0,
+          "_data": "circle_01"
         },
         {
           "name": "change",
@@ -239,59 +290,67 @@
       ],
       "title": "imageRef",
       "properties": {
-        "value": "muzzle_03",
+        "value": "circle_01",
         "values": "circle_01;circle_02;circle_03;circle_04;circle_05;dirt_01;dirt_02;dirt_03;fire_01;fire_02;flame_01;flame_02;flame_03;flame_04;flame_05;flame_06;flare_01;light_01;light_02;light_03;magic_01;magic_02;magic_03;magic_04;magic_05;muzzle_01;muzzle_02;muzzle_03;muzzle_04;muzzle_05;scorch_01;scorch_02;scorch_03;scratch_01;slash_01;slash_02;slash_03;slash_04;smoke_01;smoke_02;smoke_03;smoke_04;smoke_05;smoke_06;smoke_07;smoke_08;smoke_09;smoke_10;spark_01;spark_02;spark_03;spark_04;spark_05;spark_06;spark_07;star_01;star_02;star_03;star_04;star_05;star_06;star_07;star_08;star_09;symbol_01;symbol_02;trace_01;trace_02;trace_03;trace_04;trace_05;trace_06;trace_07;twirl_01;twirl_02;twirl_03;window_01;window_02;window_03;window_04"
       }
     }
   ],
   "links": [
     [
-      26,
+      32,
       2,
       0,
-      17,
+      22,
       0,
       "Number"
     ],
     [
-      27,
+      33,
       4,
       0,
-      17,
+      22,
       1,
       "Number"
     ],
     [
-      28,
+      34,
       5,
       0,
-      17,
+      22,
       2,
       "Number"
     ],
     [
-      29,
+      35,
       9,
       0,
-      17,
+      22,
       3,
       "Number"
     ],
     [
-      30,
+      36,
       12,
       0,
-      17,
+      22,
       4,
       "Number"
     ],
     [
-      31,
+      37,
       16,
       0,
-      17,
+      22,
       5,
       "String"
+    ],
+    [
+      38,
+      20,
+      0,
+      22,
+      6,
+      "Number"
     ]
   ],
   "groups": [],
